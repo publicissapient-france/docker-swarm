@@ -1,0 +1,656 @@
+---
+layout: main
+css: ../stylesheets/stylesheet.css
+---
+<p>Dans ce workshop, vous aurez à votre disposition <!--trois--> deux instances amazon :</p>
+<ul>
+  <li>une instance contenant un générateur de log et Logstash : <strong>{{page.groupId}}-0-kibana.aws.xebiatechevent.info</strong></li>
+  <li>une instance contenant elasticsearch et kibana : <strong>{{page.groupId}}-1-kibana.aws.xebiatechevent.info</strong></li>
+  <!--
+  <li>une instance contenant des logs apache et logstash : <strong>{{page.groupId}}-2-kibana.aws.xebiatechevent.info</strong></li>
+-->
+</ul>
+
+<p>Toutes les machines utilisent la même clef ssh, et ont le même login <em>ubuntu</em>. Dans le répertoire /home/ubuntu/tools, vous trouverez l'ensemble des outils nécéssaires durant le workshop, c'est à dire : </p>
+
+<ul>
+  <li>une archive contenant kibana : <strong>kibana-latest.zip</strong></li>
+  <li>un jar logstash : <strong>logstash-1.2.1-flatjar.jar</strong></li>
+  <li>un jar contenant un générateur de log : <strong>log-generator.jar</strong></li>
+  <li>une archive contenant elasticsearch : <strong>elasticsearch-0.90.5.tar.gz</strong></li>
+  <li>un fichier contenant des données de géolocalisation : <strong>GeoLiteCity.dat</strong></li>
+</ul>
+
+<p>Pour vous connecter aux machines, récupérer le fichier <a href="../data/kibana.pem">kibana.pem</a> ou le fichier <a href="../data/kibana.ppk">kibana.ppk</a> pour les utilisateurs Windows, dans votre répertoire courant (la clef sera révoquée après le workshop). N'oubliez pas de changer les permissions sur le fichier :</p>
+{% highlight bash %}
+$ chmod 600 kibana.pem
+{% endhighlight %}
+
+<p>Pour tester l'installation, et vous connecter à la première instance, taper la commande : </p>
+{% highlight bash %}
+$ ssh -i kibana.pem ubuntu@{{page.groupId}}-0-kibana.aws.xebiatechevent.info
+{% endhighlight %}
+
+<h1>Logstash</h1>
+<p>Logstash est un pipe permettant de collecter, parser, et stocker des logs à l'aide d'entrées, de filtres et de sorties (input, filter, output). La phase de parsing permet d'ajouter de la sémantique à notre événement, en ajoutant, modifiant ou supprimant des champs, des tags, des types, etc...</p>
+
+<p>Dans cette première partie de l'atelier, nous allons donc découvrir Logstash et le configurer pour structurer nos logs afin qu'ils soient facilement exploitables par la suite.</p>
+
+<h2>Découverte de Logstash</h2>
+<p>Commencer tout d'abord par créer le répertoire <code>~/workshop</code>.</p>
+<p>Copier le jar Logstash disponible dans le répertoire <code>~/tools</code> dans le répertoire <code>~/workshop</code></p>
+<p>Dans le répertoire <code>~/workshop</code>, créer un fichier de configuration Logstash nommé <code>logstash-logback.conf</code></p>
+
+{% highlight kconfig %}
+input {
+  stdin { } 
+}
+
+output {
+  stdout { debug => true }
+}
+{% endhighlight %}
+
+<p>Vous pouvez maintenant exécuter Logstash grâce à la commande suivante:</p>
+{% highlight bash %}
+$ java -jar logstash-1.2.1-flatjar.jar agent -f logstash-logback.conf
+{% endhighlight %}
+
+<p>Logstash est prêt à interpréter ce qu'il recevera sur l'entrée standard. Pour un premier test, passez lui la ligne suivante en entrée:</p>
+
+{% highlight bash %}02-10-2013 14:26:27.724 [pool-10-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=9205,ip=217.109.49.180,cat=TSHIRT{% endhighlight %}
+
+<p>Vous devez normalement voir un message de la forme suivante s'afficher:</p>
+{% highlight bash %}
+{
+    "message" => "02-10-2013 14:26:27.724 [pool-10-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=9205,ip=217.109.49.180,cat=TSHIRT",
+    "@timestamp" => "2013-10-25T07:50:26.232Z",
+    "@version" => "1",
+    "host" => "lucid64"
+}
+{% endhighlight %}
+
+<p>On constate que le timestamp enregistré n'est pas du tout lié à celui de la ligne de log. Logstash n'a pas pris en compte la date incluse dans notre log, il va falloir configurer entre autres un filtre pour cela.</p>
+
+<h2>Ajouter de la sémantique</h2>
+
+<p>Pour configurer Logstash afin qu'il puisse interpréter les données qu'il va recevoir en entrée, nous allons configurer plusieurs filtres.</p>
+<p>Logstash execute le fichier de configuration en prenant en compte l'ordre de déclaration de vos filtres.</p>
+
+<h3>Filtre Grok</h3>
+
+<p>Le filtre Grok met à votre disposition plusieurs patterns pour parser les lignes de logs.</p>
+
+<p>Ressources:
+	<ul>
+		<li><a target="_blank" href="http://logstash.net/docs/1.2.1/filters/grok">Documentation du filtre Grok</a></li>
+		<li><a target="_blank" href="https://github.com/logstash/logstash/blob/master/patterns/grok-patterns">Les patterns grok pré-définis</a></li>
+		<li><a target="_blank" href="http://grokdebug.herokuapp.com/">Debugger</a></li>
+	</ul>
+</p>
+
+<p>Dans un premier temps, nous voulons juste parser le niveau de log. Pour celà, le pattern <code>LOGLEVEL</code> va nous être utile.</p>
+
+{% highlight bash %}
+filter {
+   grok {
+      match => ["message","%{LOGLEVEL:log_level}"]
+   }
+}
+{% endhighlight %}
+
+<p>Vous pouvez relancer Logstash et repasser la ligne de log:</p>
+
+{% highlight bash %}02-10-2013 14:26:27.724 [pool-10-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=9205,ip=217.109.49.180,cat=TSHIRT{% endhighlight %}
+
+<p>Cette fois, on remarque qu'un élément a été analysé, l'élément <code>log_level</code></p>
+
+{% highlight bash %}
+{
+    "message" => "02-10-2013 14:26:27.724 [pool-10-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=9205,ip=217.109.49.180,cat=TSHIRT",
+    "@timestamp" => "2013-10-27T08:46:51.132Z",
+    "@version" => "1",
+    "host" => "lucid64",
+    "log_level" => "INFO"
+}
+{% endhighlight %}
+
+<p>Nous allons enrichir notre filtre pour parser le reste des lignes:</p>
+
+{% highlight bash %}
+filter {
+   grok {
+      match => ["message","(?<log_date>%{MONTHDAY}-%{MONTHNUM}-%{YEAR} %{HOUR}:%{MINUTE}:%{SECOND}.[0-9]{3}) \[%{NOTSPACE:thread}\] %{LOGLEVEL:log_level} %{NOTSPACE:classname} - %{GREEDYDATA:msg}"]
+   }
+}
+{% endhighlight %}
+
+<p>De nouveau, nous pouvons relancer Logstash et lui passer notre ligne de log, cette fois, nous allons avoir un résultat de la forme suivante:</p>
+
+{% highlight bash %}
+{
+    "message" => "02-10-2013 14:26:27.724 [pool-10-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=9205,ip=217.109.49.180,cat=TSHIRT",
+    "@timestamp" => "2013-10-27T10:30:32.242Z",
+    "@version" => "1",
+    "host" => "lucid64",
+    "log_date" => "02-10-2013 14:26:27.724",
+    "thread" => "pool-10-thread-1",
+    "log_level" => "INFO",
+    "classname" => "com.github.vspiewak.loggenerator.SearchRequest",
+    "msg" => "id=9205,ip=217.109.49.180,cat=TSHIRT"
+}
+{% endhighlight %}
+
+<p>Pour alléger la configuration, nous allons extraire l'expression régulière de la date et la définir en tant que pattern:
+	<ul>
+		<li>créez un dossier "patterns" dans le répertoire courant</li>
+		<li>Créez un fichier "logback" dans le dossier "patterns" contenant:</li>
+{% highlight bash %}
+LOG_DATE %{MONTHDAY}-%{MONTHNUM}-%{YEAR} %{HOUR}:%{MINUTE}:%{SECOND}.[0-9]{3}
+{% endhighlight %}		
+	</ul>
+Indiquez ensuite à Grok le dossier contenant vos fichiers de patterns via l'attribut "patterns_dir".
+</p>
+
+<p>La configuration Losgstash devient:
+{% highlight bash %}
+filter { 
+   grok {
+      patterns_dir => "./patterns"
+      match => [ "message", "%{LOG_DATE:log_date} \[%{NOTSPACE:thread}\] %{LOGLEVEL:log_level} %{NOTSPACE:classname} - %{GREEDYDATA:msg}"]
+   }
+}
+{% endhighlight %}      
+
+</p>
+
+<p>À ce niveau, nous constatons que l'intégralité du message a été parsé et est maintenant interprété. Par contre, même si nous avons correctement interprété la date du log, le champ <code>@timestamp</code> contient toujours la date de lecture par Logstash. Il serait plus intéressant de mettre dans ce champ la date de log. Pour cela, il va falloir utiliser un autre type de filtre, le filtre date.</p>
+
+<h3>Filtre date</h3>
+
+<p>Ressources:
+    <ul>
+        <li><a target="_blank" href="http://logstash.net/docs/1.2.1/filters/date">Documentation du filtre date</a></li>
+    </ul>
+</p>
+
+<p>Le filtre date est l'un des filtres les plus important. Il permet de préciser quelle date utiliser pour l'événement généré et alimentant le champ <code>@timestamp</code>. Rajoutez le filtre dans le fichier de configuration:
+{% highlight bash %}
+filter {
+    [...]
+    date {
+        match => ["log_date","dd-MM-YYYY HH:mm:ss.SSS"]
+    }
+}
+{% endhighlight %}
+</p>
+
+<p>En redonnant notre ligne de log en entrée, nous récupérons un retour de la forme suivante:
+{% highlight bash %}
+{
+    "message" => "02-10-2013 14:26:27.724 [pool-10-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=9205,ip=217.109.49.180,cat=TSHIRT",
+    "@timestamp" => "2013-10-02T12:26:27.724Z",
+    "@version" => "1",
+    "host" => "lucid64",
+    "log_date" => "02-10-2013 14:26:27.724",
+    "thread" => "pool-10-thread-1",
+    "log_level" => "INFO",
+    "classname" => "com.github.vspiewak.loggenerator.SearchRequest",
+    "msg" => "id=9205,ip=217.109.49.180,cat=TSHIRT"
+}
+{% endhighlight %}
+</p>
+<p>Logstash normalise les dates au format UTC automatiquement.</p>
+
+<h3>Filtre kv</h3>
+
+<p>Le filtre kv s'avère très utile lorsque vous voulez parser un champ de type foo=bar comme par exemple une requête HTTP. Ajoutez le filtre kv pour notre example:
+
+{% highlight bash %}
+filter {
+    [...]
+    kv {
+      field_split => ","
+      source => "msg"
+    }
+}
+{% endhighlight %}
+</p>
+
+<p>Relancez Logstash et passez lui en entrée la ligne suivante:
+{% highlight bash %}08-10-2013 16:33:49.629 [pool-1-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=41,ip=157.55.34.94,brand=Apple,name=iPhone 5C,model=iPhone 5C - Blanc - Disque 16Go,category=Mobile,color=Blanc,options=Disque 16Go,price=599.0{% endhighlight %}
+</p>
+
+<p>Vous devez obtenir le résultat suivant:
+{% highlight bash %}
+{
+    "message" => "08-10-2013 16:33:49.629 [pool-1-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=41,ip=157.55.34.94,brand=Apple,name=iPhone 5C,model=iPhone 5C - Blanc - Disque 16Go,category=Mobile,color=Blanc,options=Disque 16Go,price=599.0",
+    "@timestamp" => "2013-10-08T14:33:49.629Z",
+    "@version" => "1",
+    "host" => "lucid64",
+    "log_date" => "08-10-2013 16:33:49.629",
+    "thread" => "pool-1-thread-1",
+    "log_level" => "INFO",
+    "classname" => "com.github.vspiewak.loggenerator.SearchRequest",
+    "msg" => "id=41,ip=157.55.34.94,brand=Apple,name=iPhone 5C,model=iPhone 5C - Blanc - Disque 16Go,category=Mobile,color=Blanc,options=Disque 16Go,price=599.0",
+    "id" => "41",
+    "ip" => "157.55.34.94",
+    "brand" => "Apple",
+    "name" => "iPhone 5C",
+    "model" => "iPhone 5C - Blanc - Disque 16Go",
+    "category" => "Mobile",
+    "color" => "Blanc",
+    "options" => "Disque 16Go",
+    "price" => "599.0"
+}
+{% endhighlight %}
+Logstash parse maintenant notre ligne de vente et ajoute automatiquement les champs category, brand, name, model, color, options et price.
+</p>
+
+<h3>Filtre GeoIP</h3>
+
+<p>Le filtre geoip permet d'ajouter des informations de géolocalisation via une adresse ip (ou hostname).
+Logstash utilise la base de donnée GeoCityLite de Maxmind sous license CCA-ShareAlike 3.0. 
+<ul><li><a href="https://www.maxmind.com/app/geolite" target="_blank">https://www.maxmind.com/app/geolite</a></li></ul>
+Nous allons utiliser une version de GeoCity téléchargée au préalable sur le site Maxmind plutôt que la version embarquée dans Logstash. Copiez le fichier ~/tools/GeoLiteCity.dat dans ~/workshop et rajoutez le filtre dans la configuration Logstash:
+
+{% highlight bash %}
+filter {
+    [...]
+
+    geoip {
+        source => "ip"
+        database => "./GeoLiteCity.dat"
+    }
+}
+{% endhighlight %}
+</p>
+
+
+<h3>Filtre mutate</h3>
+
+<p>Le filtre mutate est un filtre "couteaux suisses" permettant une multitude de modifications.</p>
+
+<h4>Ajout de tag</h4>
+
+<p>Nous allons ajouter un tag à nos logs afin de différencier les recherches des ventes:
+{% highlight bash %}
+filter {
+    [...]
+    if [classname] =~ /SellRequest/ {
+        mutate { add_tag => "sell" }
+    } else if [classname] =~ /SearchRequest$/ {
+        mutate { add_tag => "search" }
+    }
+}
+{% endhighlight %}
+</p>
+
+<p>Relancez Logstash et passez lui en entrée la ligne suivante:
+{% highlight bash %}
+08-10-2013 16:33:49.629 [pool-1-thread-1] INFO com.github.vspiewak.loggenerator.SearchRequest - id=41,ip=157.55.34.94,brand=Apple,name=iPhone 5C,model=iPhone 5C - Blanc - Disque 16Go,category=Mobile,color=Blanc,options=Disque 16Go,price=599.0
+08-10-2013 16:33:49.629 [pool-1-thread-1] INFO com.github.vspiewak.loggenerator.SellRequest - id=41,ip=157.55.34.94,brand=Apple,name=iPhone 5C,model=iPhone 5C - Blanc - Disque 16Go,category=Mobile,color=Blanc,options=Disque 16Go,price=599.0
+{% endhighlight %}
+</p>
+
+<p>Notez au passage que Logstash permet l'utilisation de conditions, pour en savoir plus:
+    <ul>
+        <li><a target="_blank" href="http://logstash.net/docs/1.2.2/configuration#conditionals">Documentation</a></li>
+    </ul>
+</p>
+
+<h4>Conversion de type</h4>
+
+<p>Le filtre mutate permet de convertir certains champs en entier, flottant ou string.
+Nous ajoutons à notre configuration la conversion des champs id et price:
+{% highlight bash %}
+filter {
+    [...]
+    mutate {
+        convert => [ "id", "integer" ]
+        convert => [ "price", "float" ]
+    }   
+}
+{% endhighlight %}
+</p>
+
+<h4>Suppression d'un champ</h4>
+
+<p>Toujours avec le filtre mutate, nous allons supprimer le champ "msg".
+Nous avons en effet parsé ce champ avec le filtre kv et n'avons plus besoin de ce doublon d'information.
+{% highlight bash %}
+filter {
+    [...] 
+    mutate {
+        [...]
+        remove_field => [ "msg" ]  
+    }  
+}
+{% endhighlight %}
+</p>
+
+<h4>Split d'un champ</h4>
+
+<p>Pour finir avec le filtre mutate, nous allons splité notre champ "options" afin d'avoir un tableau d'options.
+{% highlight bash %}
+filter {
+    [...]
+    mutate {
+        [...]
+       split => [ "options", "|" ]
+    }
+}
+{% endhighlight %}
+</p>
+
+<h3>GeoIP et Bettermap</h3>
+<p>Le panel Bettermap de Kibana requiert un champ contenant les coordonnées GPS au format Geo_JSON (i.e: un tableau de deux float au format: [ longitude, latitude ]).</p>
+<p>Ajoutez un champ "geoip.lnglat" contenant le tableau de coordonnées via le "hack" suivant:
+{% highlight bash %}
+filter {
+    [...]
+    # geoip.lnglat contiendra le point geo_json, 'tmplat' contient la latitude (temporaire)
+    # les deux champs sont de type string.
+    mutate {
+        add_field => [ "[geoip][lnglat]", "%{[geoip][longitude]}", "tmplat", "%{[geoip][latitude]}" ]
+    }
+
+    # merge du champ tmplat dans geoip.lnglat. 
+    # le champ geoip.lnglat devient un tableau de string
+    mutate {
+        merge => [ "[geoip][lnglat]", "tmplat" ]
+    }
+
+    # conversion du tableau de string en float
+    # suppression du champ tmplat
+    mutate {
+        convert => [ "[geoip][lnglat]", "float" ]
+        remove_field => [ "tmplat" ]
+    }
+}
+{% endhighlight %}
+</p>
+
+<h3>Résultat final</h3>
+
+{% highlight bash %}
+input {
+  stdin { } 
+}
+
+filter {
+    grok {
+        patterns_dir => "./patterns"
+        match => ["message","%{LOG_DATE:log_date} \[%{NOTSPACE:thread}\] %{LOGLEVEL:log_level} %{NOTSPACE:classname} - %{GREEDYDATA:msg}"]
+    }
+
+    date {
+        #timezone => "UTC"
+        match => ["log_date","dd-MM-YYYY HH:mm:ss.SSS"]
+    }
+
+    kv {
+        field_split => ","
+        source => "msg"
+    }
+
+    geoip {
+        source => "ip"
+        database => "./GeoLiteCity.dat"
+    }
+
+    if [classname] =~ /SellRequest/ {
+        mutate { add_tag => "sell" }
+    } else if [classname] =~ /SearchRequest$/ {
+        mutate { add_tag => "search" }
+    }
+
+    mutate {
+        convert => [ "id", "integer" ]
+        convert => [ "price", "float" ]
+        remove_field => [ "msg" ]
+        split => [ "options", "|" ]
+    }
+
+    # hack pour Bettermap panel de Kibana
+    mutate {
+        add_field => [ "[geoip][lnglat]", "%{[geoip][longitude]}", "tmplat", "%{[geoip][latitude]}" ]
+    }
+
+    mutate {
+        merge => [ "[geoip][lnglat]", "tmplat" ]
+    }
+
+    mutate {
+        convert => [ "[geoip][lnglat]", "float" ]
+        remove_field => [ "tmplat" ]
+    }
+
+}
+
+output {
+    stdout { debug => true }
+}
+{% endhighlight %}
+
+<h2>Lancer la génération de log</h2>
+
+<p>Maintenant que Logstash est capable d'analyser nos logs, nous allons lancer notre générateur.</p>
+
+<h3>Création du dossier contenant les futurs logs</h3>
+<p>
+{% highlight bash %}
+$ mkdir /tmp/logstash
+{% endhighlight %}
+</p>
+
+<h3>Modifier l'entrée de Logstash</h3>
+<p>
+Afin que Logstash analyse tous les fichiers de log contenu dans le dossier précédemment créé.
+{% highlight bash %}
+input {
+    file {
+        path => "/tmp/logstash/*.log"
+    }
+}
+{% endhighlight %}
+</p>
+
+<h3>Lancez le générateur de log</h3>
+<p>
+    <ul>
+        <li>Copiez le jar ~/tools/log-generator.jar dans le dossier ~/workshop</li>
+        <li>Lancer le générateur afin de générer 10 lignes de log chaque seconde dans le fichier /tmp/logstash/workshop.log</li>
+    </ul>
+
+{% highlight bash %}
+$ java -jar log-generator.jar -n 10 -r 1000 > /tmp/logstash/workshop.log &
+{% endhighlight %}
+</p>
+
+<h1>ElasticSearch</h1>
+
+<p>Maintenant que Logstash est configuré pour parser nos logs et les transformer dans un format convenable, nous allons stocker ces logs dans ElasticSearch.</p>
+
+<h2>Configuration d'ElasticSearch</h2>
+
+<p>Connectez vous à la vm {{page.groupId}}-1-kibana.aws.xebiatechevent.info et effectuez les opérations suivantes :
+{% highlight bash %}
+$ ssh -i kibana.pem ubuntu@{{page.groupId}}-1-kibana.aws.xebiatechevent.info
+{% endhighlight %}
+    <ul>
+        <li>créez un répertoire workshop</li>
+        <li>copiez dans ce répertoire l'archive d'ElasticSearch présente dans le répertoire ~/tools</li>
+    </ul>
+
+<h2>Template de mapping ElasticSearch pour les index Logstash</h2>
+<p>Lancez ElasticSearch après avoir installé le plugin head:
+{% highlight bash %}
+$ ~/workshop/elasticsearch-0.90.5/bin/plugin -install mobz/elasticsearch-head
+$ ~/workshop/elasticsearch-0.90.5/bin/elasticsearch
+{% endhighlight %}
+</p>
+<p>Une fois elasticsearch lancé, vous pouvez visualiser facilement votre cluster Elasticsearch via l'url: <a href="http://{{page.groupId}}-1-kibana.aws.xebiatechevent.info:9200/_plugin/head">http://{{page.groupId}}-1-kibana.aws.xebiatechevent.info:9200/_plugin/head</a></p>
+<p>Ajoutez le template suivante afin d'utiliser l'analyser "keyword" pour les champs "ip", name", "model", "options" et "email":
+{% highlight bash %}
+curl -XPUT http://localhost:9200/_template/logstash_per_index -d '{
+    "template" : "logstash*",
+    "mappings" : {
+        "_default_" : {
+           "_all" : {"enabled" : false},
+           "properties" : {
+              "@timestamp": { "type": "date", "index": "not_analyzed" },
+              "tags": { "type": "string", "index": "not_analyzed" },
+              "ip": { "type" : "ip", "analyzer": "keyword", "index": "analyzed" },
+              "name": { "type" : "string", "analyzer": "keyword", "index": "analyzed" },
+              "model": { "type" : "string", "analyzer": "keyword", "index": "analyzed" },
+              "options": { "type" : "string", "analyzer": "keyword", "index": "analyzed" },
+              "email": { "type" : "string", "analyzer": "keyword", "index": "analyzed" }
+ 
+            }
+        }
+   }
+}
+'
+{% endhighlight %}
+<p>Ce mapping vous permettra de ne pas avoir décueils lors de la construction de votre dashboard Kibana.
+    <img src="../images/dashboard-analyzed-terms.png" style="width: 692px; height: 256px;" />
+</p>
+
+<h2>Branchement de Logstash avec ElasticSearch</h2>
+
+<p>ElasticSearch est maintenant configuré. Nous allons donc configurer Logstash pour qu'il envoit les logs analysés dans le moteur de recherche.</p>
+
+<p>Modification de la sortie de Logstash:
+{% highlight bash %}
+output {
+    elasticsearch {
+        host => "{{page.groupId}}-1-kibana.aws.xebiatechevent.info"
+    }
+}
+{% endhighlight %}
+</p>
+
+<p>C'est tout ce qu'il y a à faire. Vous pouvez maintenant redémarrer Logstash et pour vérifier qu'ElasticSearch est bien alimenté, retourner sur la vm d'ElasticSearch et lancez les deux commandes suivantes.</p>
+
+<p>Pour lister les index:
+{% highlight bash %}
+$ curl -s http://127.0.0.1:9200/_status?pretty=true | grep logstash
+{% endhighlight %}
+</p>
+
+<p>Pour voir le nombre de documents indexés:
+{% highlight bash %}
+$ curl -gs -XGET "http://localhost:9200/logstash-*/_count"
+{% endhighlight %}
+</p>
+
+<h1>Kibana</h1>
+<p></p>
+<h2>Installation</h2>
+<p>Installation de Kibana dans Apache:
+{% highlight bash %}
+cd /var/www
+sudo unzip /home/ubuntu/tools/kibana-latest.zip 
+sudo mv kibana-latest kibana
+sudo /etc/init.d/apache2 restart
+{% endhighlight %}
+</p>
+
+<p>Vous devriez pouvoir acceder au dashboard via l'url: <a href="http://{{page.groupId}}-1-kibana.aws.xebiatechevent.info/kibana">{{page.groupId}}-1-kibana.aws.xebiatechevent.info/kibana</a></p>
+
+<h2>Dashboard Logstash</h2>
+<p>Kibana vous propose un dashboard pré-configuré si vos données viennent de Logstash/ES. 
+Vous pouvez y acceder via l'url: <a href="http://{{page.groupId}}-1-kibana.aws.xebiatechevent.info/kibana/index.html#/dashboard/file/logstash.json">{{page.groupId}}-1-kibana.aws.xebiatechevent.info/kibana/index.html#/dashboard/file/logstash.json</a>.
+</p>
+
+<h2>Dashboard GeekShop</h2>
+<p>Nous allons créer un dashboard personnalisé pour notre boutique en ligne. 
+Commencez avec un dashboard vide accessible à l'adresse: <a href="http://{{page.groupId}}-1-kibana.aws.xebiatechevent.info/kibana/index.html#/dashboard/file/blank.json">{{page.groupId}}-1-kibana.aws.xebiatechevent.info/kibana/index.html#/dashboard/file/blank.json</a>.
+N'oubliez pas de sauvegarder régulièrement votre dashboard dans Elasticsearch grâce au menu situé en haut à droite.
+</p>
+<h3>Configuration générale</h3>
+<p>Cliquez sur la roue crantée tout en haut à droite afin de faire apparaître le menu "Dashboard Settings":
+<ul>
+    <li>dans l'onglet "General", changez le titre du dashboard</li>
+    <li>dans l'onglet "Index", selectionnez "day", puis entrez "[logstash-]YYYY.MM.DD" dans le champ index pattern</li>
+    <li>dans l'onglet "Rows", ajouter les lignes "timeline", "hits", "search", "sell", "events" en cliquant sur "Create Row"</li>
+</ul>
+<img src="../images/dashboard-index-settings.png" style="width: 776px; height: 408px;" />
+</p>
+<h3>Configuration des queries</h3>
+<p>Ajoutez des barres de recherches en cliquant sur l'icône "+". 
+<img src="../images/dashboard-query-buttons.png" style="position: relative; top: 25px; width: 55px; height: 35px;"/>
+</p>
+<p>Entrez les queries suivantes:
+<ul>
+    <li>tags:"search"</li>
+    <li>tags:"sell"</li>
+    <li>sex:"M"</li>
+    <li>sex:"F"</li>
+</p>
+<p>Donnez un alias aux queries (en cliquant sur le rond de couleur):
+<ul>
+    <li>search</li>
+    <li>sell</li>
+    <li>men</li>
+    <li>women</li>
+Puis épinglez les queries via le bouton "Pin".
+</p>
+<p>Pour finir, choisissez un période de temps pour le dashboard en cliquant sur "set at time filter". Sélectionnez "Last 1h" puis "Auto-Refresh" &gt; "every 30s". 
+<img src="../images/dashboard-queries.png" />
+</p>
+<h3>Ligne Timeline</h3>
+<p>
+    <ul>
+        <li>Ajoutez un panel "histogram" dans la première ligne.
+            Configurez la taille à 6.</li>
+        <li>Ajoutez un panel "bettermap" toujours dans la première ligne.
+            Configurez la taille à 6.
+            Insérez "geoip.lnglat" pour le champ "Coordinate Field".</li>
+    </ul>
+    <img src="../images/dashboard-timeline.png" />
+</p>
+
+<h3>Ligne Hits</h3>
+<p>
+    <ul>
+        <li>Ajoutez un panel "pie" de taille 2. Selectionnez le mode "goal". Sélectionnez la query "search" (queries => selected).</li>
+        <li>Ajoutez un panel "pie" de taille 2. Selectionnez le mode "goal". Sélectionnez la query "sell".</li>
+        <li>Ajoutez un panel "hits" de taille 2. Selectionnez le style "pie". Sélectionnez les queries "search" et "sell".</li>
+        <li>Ajoutez un panel "hits" de taille 2. Selectionnez le style "pie". Sélectionnez les queries "men" et "women".</li>
+        <li>Ajoutez un panel "hits" de taille 4. Selectionnez le style "bar". Sélectionnez les queries "search", "sell", "men" et "women".</li>
+    </ul>
+    <img src="../images/dashboard-hits.png" />
+</p>
+
+<h3>Ligne Search</h3>
+<p>(Précision: veillez à décocher "missing" et "others" dans la configuration de tous les panels suivants)
+    <ul>
+        <li>Ajoutez un panel "terms" de taille 2. Insérez "category" dans le champ "Field". Selectionnez le style "pie". Sélectionnez la query "search".</li>
+        <li>Ajoutez un panel "terms" de taille 3. Insérez "options" dans le champ "Field". Selectionnez le style "table". Sélectionnez la query "search".</li>
+        <li>Ajoutez un panel "terms" de taille 3. Insérez "geoip.ip" dans le champ "Field". Selectionnez le style "table". Sélectionnez la query "search".</li>
+        <li>Ajoutez un panel "terms" de taille 4. Insérez "name" dans le champ "Field". Selectionnez le style "bar". Sélectionnez la query "search".</li>
+    </ul>
+    <img src="../images/dashboard-search.png" />
+</p>
+
+<h3>Ligne Sell</h3>
+<p>(Précision: veillez à décocher "missing" et "others" dans la configuration de tous les panels suivants)
+    <ul>
+        <li>Ajoutez un panel "terms" de taille 2. Insérez "category" dans le champ "Field". Selectionnez le style "pie". Sélectionnez la query "sell".</li>
+        <li>Ajoutez un panel "terms" de taille 3. Insérez "email" dans le champ "Field". Selectionnez le style "table". Sélectionnez la query "sell".</li>
+        <li>Ajoutez un panel "terms" de taille 3. Insérez "name" dans le champ "Field". Selectionnez le style "table". Sélectionnez la query "sell".</li>
+        <li>Ajoutez un panel "terms" de taille 4. Insérez "model" dans le champ "Field". Selectionnez le style "bar". Sélectionnez la query "sell".</li>
+    </ul>
+    <img src="../images/dashboard-sell.png" />
+</p>
+
+<h3>Ligne Events</h3>
+<p>Ajoutez un panel de type "table" de taille 2. Sélectionnez la query "courante" "*"</p>
+
+<h3>Conclusion</h3>
+<p>Vous devez obtenir un <a href="../dashboard.json">dashboard</a> similaire à celui-ci:</p>
+<img src="../images/geekshop-kibana-part1.png" />
+<img src="../images/geekshop-kibana-part2.png" />
+<img src="../images/geekshop-kibana-part3.png" />

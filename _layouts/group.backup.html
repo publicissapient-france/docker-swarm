@@ -1,0 +1,556 @@
+---
+layout: main
+css: ../stylesheets/stylesheet.css
+---
+<h1><a name="h.jkvseqok3de"></a><span>Deploy an application with &ldquo;Elastic Beanstalk&rdquo;</span></h1>
+
+<p><span></span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image16.png"></p>
+
+<p><span></span></p>
+
+<p><span></span></p>
+
+<p><span>Prerequisites:</span></p>
+
+<p><span></span></p>
+<ol start="1">
+    <li><span>AWS command line tools (</span><span><a
+            href="http://www.google.com/url?q=http%3A%2F%2Fdocs.amazonwebservices.com%2Felasticbeanstalk%2Flatest%2Fdg%2FusingCLI.html&amp;sa=D&amp;sntz=1&amp;usg=AFQjCNHAC166mLlXA1Ezxv5Xz_OctjR-BQ">Help
+        here</a></span><span>)</span></li>
+</ol>
+<p><span></span></p>
+<ol start="2">
+    <li><span>Download the 2 versions of petclinic required for this work:</span></li>
+</ol>
+<ol start="1">
+    <li><span><a
+            href="https://s3-eu-west-1.amazonaws.com/workshop-aws-beanstalk/petclinic-1.0.war">petclinic-1.0.war</a></span>
+    </li>
+    <li><span><a
+            href="https://s3-eu-west-1.amazonaws.com/workshop-aws-beanstalk/petclinic-2.0.war">petclinic-2.0.war</a></span>
+    </li>
+</ol>
+<p><a name="h.bsl4kdag96zn"></a>
+
+<h2>1 - Deploy with AWS Web Console</h2></p><p><span>For the purpose of this workshop we need a RDS instance. Since the RDS creation can be rather long we ask you to create it as a first step. During the creation of the RDS instance, we will deploy the sample application given by Amazon to make a &ldquo;hello world&rdquo;
+    deployment. Then we will deploy the petclinic application to see what needs to be done to deploy a &ldquo;real&rdquo;
+    application.</span></p>
+
+<h2><a name="h.z9jik6tm9217"></a><span>1.1 - Connect to AWS console</span></h2>
+
+<p><span>The AWS cons</span><span>ole is here: </span><span><a
+        href="https://xebia-france.signin.aws.amazon.com/console">https://xebia-france.signin.aws.amazon.com/console</a></span>
+</p>
+
+<p><span></span></p>
+
+<p><span>Login:</span><span>&nbsp;{{page.groupId}}</span></p>
+
+<p><span>Password:</span><span>&nbsp;&lt;&lt;Written on your worksheet&gt;&gt;</span></p>
+
+<h2><a name="h.fkca3mryftfp"></a><span>1.2 - Create an RDS database instance</span></h2>
+
+<p><span>Since the RDS creation can be rather long we ask you to create it as a first step. When logged, you arrive on AWS Management Console homepage and click on RDS service module.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image03.png"></p>
+
+<p><span>Then, once in the RDS console, change your region to </span><span>EU (Ireland)</span><span>:</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image24.png"></p>
+
+<p><span></span></p>
+
+<p><span></span></p>
+
+<p><span>On the left menu, click on DB Snapshot entry. Then check the DB Snapshot with name </span><span>&ldquo;petclinic-database-created-snapshot&rdquo;</span><span>&nbsp;and click </span><span>Restore From DB Instance</span><span>.</span>
+</p>
+
+<p><span></span></p>
+
+<p><span>A new popup windows is displayed. In the DB Instance Identifier field, indicate </span><span>&ldquo;petclinic-{{page.groupId}}-db&rdquo;</span><span>&nbsp;and select a </span><span>&ldquo;db.t1.micro&rdquo;</span><span>&nbsp;instance class. Multi-AZ Deployment option is not necessary so select </span><span>&ldquo;No&rdquo;</span><span>&nbsp;inside the drop down list.</span>
+</p>
+
+<p><span></span></p>
+
+<p><span>Now you can launch your DB Instance by clicking on submit button.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image09.png"></p>
+
+<p><span></span></p>
+
+<p><span>Your DB instance is creating... It can take about 10 minutes. Once the instance is available, you can verify its properties.</span>
+</p>
+
+<p><img src="images/image14.png"></p>
+
+<p><span></span></p>
+
+<p><span>During the RDS instance creation, you can create your application in beanstalk.</span></p>
+
+<h2><a name="h.wqqlorlisphh"></a><span>1.3 - Create a new application from scratch</span></h2>
+
+<p>
+    <span>Go back to the AWS Management Console homepage by clicking on the cube symbol in upper right corner. Click on </span><span>Elastic Beanstalk</span><span>:</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image10.png"></p>
+
+<p><span></span></p>
+
+<p>
+    <span>We will begin by creating the application with a sample application to see the standard configuration steps.</span>
+</p>
+
+<h3><a name="h.cdck3re4igqs"></a><span>Application Details</span></h3>
+
+<p><span></span></p>
+
+<p><span>Create a new application by following the next steps:</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image36.png"></p>
+
+<p><span></span></p>
+<ol start="1">
+    <li><span>Click on &ldquo;Create New Application&rdquo;.</span></li>
+    <li><span>In the modal window provide the &ldquo;Application-Name&rdquo; type </span><span>&lsquo;</span><span>petclinic-{{page.groupId}}</span><span>&rsquo;</span>
+    </li>
+    <li><span>Select &ldquo;Container Type&rdquo; : &ldquo;64bit Amazon Linux running Tomcat 7&rdquo;</span></li>
+    <li><span>Select &ldquo;Application Source&rdquo; : &ldquo;Use the Sample Application&rdquo;.</span></li>
+    <li><span>Click on &ldquo;Continue&rdquo;</span></li>
+</ol>
+<h3><a name="h.x9of3ajft5x2"></a><span>Environment Details</span></h3>
+
+<p><span></span></p>
+
+<p><img src="images/image11.png"></p>
+
+<p><span></span></p>
+<ol start="1">
+    <li><span>Check &ldquo;Launch a new environment running this application&rdquo; </span></li>
+    <li><span>Provide the &ldquo;Environment Name&rdquo;
+        : &lsquo;</span><span>petclinic-{{page.groupId}}-dev</span><span>&rsquo;</span></li>
+    <li><span>Provide an environment url (this will be your application url) and check availability</span></li>
+</ol>
+<h3><a name="h.wbuh9lsb2kem"></a><span>Configuration Details</span></h3>
+
+<h3><a name="h.45fzqq6tiywn"></a><img src="images/image04.png"></h3>
+<ol start="1">
+    <li><span>Choose t1.micro as Instance Type</span></li>
+    <li><span>Enter in Existing</span><span>&nbsp;Key Pair field</span><span>: </span><span>&lsquo;</span><span>workshop-ebs</span><span>&rsquo;</span>
+    </li>
+    <li><span>Enter &ldquo;/&rdquo; as application health check URL</span></li>
+</ol>
+<p><span></span></p>
+
+<p><span>Verify your environment settings and click Finish.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image26.png"></p>
+
+<p><span></span></p>
+
+<p><span>Close the creation success popup.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image34.png"></p>
+
+<p><span></span></p>
+
+<p><span>Now, your application is launching and it may take several minutes... During this time, you can go to the other aws services like EC2 instances and load balancers, CloudFormation, etc. to see the various instances created by beanstalk.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image21.png"></p>
+
+<p><span></span></p>
+
+<p><span></span></p>
+
+<h3><a name="h.l7azmyfaosrq"></a><span>Test sample application</span></h3>
+
+<p><span></span></p>
+
+<p><span>Once the Beanstalk test application environment is green (it may take about 10 minutes) then you should have the following screen.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image31.png"></p>
+
+<p><span></span></p>
+
+<p><span>Click on the &ldquo;</span><span>View Running Version</span><span>&rdquo; to display your first application deployed on Beanstalk.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image37.png"></p>
+
+<h2><a name="h.jzpfn8jidool"></a><span>1.4 - Configure your Environment for using the RDS DB Instance</span></h2>
+
+<p>
+    <span>Go back to Elastic Beanstalk and select </span><span>Edit/Load Configuration</span><span>&nbsp;option</span><span>&nbsp;in the </span><span>Actions</span><span>&nbsp;menu list.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image17.png"></p>
+
+<p><span></span></p>
+
+<p><span>Switch to the </span><span>Container</span><span>&nbsp;tab and scroll to the </span><span>Environment Properties</span><span>&nbsp;part. Then indicate your </span><span>JDBC_CONNECTION_STRING</span><span>&nbsp;property according to your DB instance.</span>
+</p>
+
+<p><span></span></p><a href="#" name="0eaf14995f93743f980b35efb933e12d585e9da1"></a><a href="#" name="0"></a>
+<table cellpadding="0" cellspacing="0">
+    <tbody>
+    <tr>
+        <td><p><span>jdbc:mysql://petclinic-{{page.groupId}}-db.XXXXXXXX.eu-west-1.rds.amazonaws.com:3306/petclinic?user=root&amp;password=rootroot</span>
+        </p></td>
+    </tr>
+    </tbody>
+</table>
+<p><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
+
+<p><span>Apply your changes.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image00.png"></p>
+
+<h2><a name="h.sk9s7lt50pi7"></a><span>1.5 - Deploy PetClinic application in place of the sample application</span></h2>
+
+<h3><a name="h.4bc78sun57vu"></a><span>Upload the Petclinic war file</span></h3>
+<ol start="1">
+    <li><span>Click on </span><span>Deploy a Different Version</span></li>
+    <li><span>Check option </span><span>Upload and deploy a new version</span></li>
+    <li><span>Name your version </span><span>petclinic-{{page.groupId}}-1.0</span></li>
+    <li><span>Upload file </span><span>petclinic-1.0.war</span></li>
+</ol>
+<p><span></span></p>
+
+<p><span>Then click on </span><span>Deploy Version</span><span>.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image12.png"></p>
+
+<p><span></span></p>
+
+<p><span>The environment will be updated and deploy the petclinic application. Once the application is deploy, you can test your application by clicking on View Running Version button.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image19.png"></p>
+
+<p><span></span></p>
+
+<p><span>We have now a full operational application deployed on beanstalk. This first version is now tested, we need to make now a production environment. We will make it using the AWS CLI tools.</span>
+</p>
+<hr style="page-break-before:always;display:none;">
+<p><span></span></p>
+
+<h1><a name="h.swramvdjbfer"></a><span>2 - Deploy with CLI</span></h1>
+
+<h2><a name="h.tfppc8ddp1oz"></a><span>2.1 - SDK CLI installation</span></h2>
+
+<p><span>Download AWS command line tools (</span><span><a
+        href="http://docs.amazonwebservices.com/elasticbeanstalk/latest/dg/usingCLI.html">Help
+    here</a></span><span>) </span></p>
+
+<p><span></span></p>
+
+<p><span>You can test your installation by executing the following command:</span></p>
+
+<p><span></span></p><a href="#" name="a744ac3284f138d89d46c1acb0e13f89a074d2d4"></a><a href="#" name="1"></a>
+<table cellpadding="0" cellspacing="0">
+    <tbody>
+    <tr>
+        <td><p><span>$elastic-beanstalk-describe-applications</span></p></td>
+    </tr>
+    </tbody>
+</table>
+<p><span></span></p>
+
+<p><span>If you have any error with JSON during command execution, execute</span></p>
+
+<p><span></span></p><a href="#" name="6820246b598c148fd7634922a5578b76730d0abe"></a><a href="#" name="2"></a>
+<table cellpadding="0" cellspacing="0">
+    <tbody>
+    <tr>
+        <td><p><span>$sudo gem install json</span></p></td>
+    </tr>
+    </tbody>
+</table>
+<p><span></span></p>
+<hr style="page-break-before:always;display:none;">
+<p><span></span></p>
+
+<h2><a name="h.ow7em166df4o"></a><span>2.2 - Create a new production environment with 1.0 version</span></h2>
+
+<p><span>To create a new production environment, we need to generate a template of the dev environment. </span></p>
+
+<h3><a name="h.uklklhgs2oz8"></a><span>Check your environment informations</span></h3><a href="#"
+                                                                                         name="176ed9e280998282bf392dbbca22359ef5f8b7f0"></a><a
+        href="#" name="3"></a>
+<table cellpadding="0" cellspacing="0">
+    <tbody>
+    <tr>
+        <td><p><span>$ elastic-beanstalk-describe-environments -a petclinic-{{page.groupId}}</span></p></td>
+    </tr>
+    </tbody>
+</table>
+<p><span></span></p>
+
+<p><span>Retrieve your environment id in the console return.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image28.png"></p>
+
+<h3><a name="h.mt2gs9yo36nh"></a><span>Create a template configuration of your first environment named petclinic-{{page.groupId}}-config</span>
+</h3>
+
+<p><span>Now we can generate a template of the environment with the following command</span></p>
+
+<p><span></span></p><a href="#" name="e30aee449366aea628ef8b9d22ad1bcaebc95109"></a><a href="#" name="4"></a>
+<table cellpadding="0" cellspacing="0">
+    <tbody>
+    <tr>
+        <td><p><span>$ elastic-beanstalk-create-configuration-template -a petclinic-{{page.groupId}} -t petclinic-{{page.groupId}}-config -E [environmentId]</span>
+        </p></td>
+    </tr>
+    </tbody>
+</table>
+<h3><a name="h.6zcq2h1vfzt1"></a><span>Now you can create a new environment with your file template configuration</span>
+</h3><a href="#" name="3e9f6330dad5d806cbfb07771f978570ecfb62df"></a><a href="#" name="5"></a>
+<table cellpadding="0" cellspacing="0">
+    <tbody>
+    <tr>
+        <td><p><span>$ elastic-beanstalk-create-environment -a petclinic-{{page.groupId}} -l &#39;petclinic-{{page.groupId}}-1.0&#39; -d &#39;Petclinic application prod&#39; -e petclinic-{{page.groupId}}-prod -t petclinic-{{page.groupId}}-config</span>
+        </p></td>
+    </tr>
+    </tbody>
+</table>
+<p><span></span></p>
+
+<p><img src="images/image01.png"></p>
+
+<p><span></span></p>
+
+<p><span>You have now two configured environments:</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image05.png"></p>
+
+<p><span></span></p>
+
+<p><span>To deal with in depth this subject, </span><span><a
+        href="http://docs.amazonwebservices.com/elasticbeanstalk/latest/dg/OperationList-cmd.html">click here</a></span><span>.</span>
+</p>
+
+<h1><a name="h.map0mpz4dp22"></a><span>3 - </span><span>Blue/Green Deployment</span></h1>
+
+<p><span>Deploy with zero downtime is one of the challenges with automating deployment and it can be reached by Blue/Green deployment approach.</span>
+</p>
+
+<p><span></span></p>
+
+<p><span>The Blue/Green deployment principle involves you have two production environments as identical as possible. One of them is live (for example the Blue one). Once your new application release is ready, you can deploy it on the Green environment for testing. If everything is correct, you can switch the Router in order to redirect incoming requests to the Green slice. Now, the Blue slice is idle and you can re-used it for testing the next version of your application.</span>
+</p>
+
+<p><img src="images/image30.png"></p>
+
+<p><span>Amazon AWS Elastic Beanstalk allows you to implement easily these principle...</span></p>
+
+<h2><a name="h.a95rdu26denp"></a><span>3.1 - Saving your </span><span>prod </span><span>environment configuration settings</span>
+</h2>
+
+<p><span></span></p>
+
+<p><span>Below the application selection drop-down list, click the </span><span>Actions</span><span>&nbsp;drop-down list for your application environment in the application&#39;s Environments list and select </span><span>Save Configuration</span><span>.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image42.png"></p>
+
+<p><span></span></p>
+
+<p><span>In the </span><span>Configuration Name</span><span>&nbsp;field type </span><span>petclinic-configuration-{{page.groupId}}</span><span>&nbsp;and click </span><span>Save Config</span><span>.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image20.png"></p>
+
+<h2><a name="h.yg784ymilwry"></a><span>3.2 - Upload the new application version</span></h2>
+
+<p><span>Go to the </span><span>Versions</span><span>&nbsp;tab, and click </span><span>Upload New Version</span><span>. In the pop-up windows, indicate </span><span>petclinic-{{page.groupId}}-2.0 </span><span>in the </span><span>Version Label</span><span>&nbsp;field and upload the new version of your application.</span>
+</p>
+
+<p><span></span></p>
+
+<p>
+    <span>Do not forget to check the deployment option </span><span>Upload but do not deploy to any environment</span><span>, and then click </span><span>Upload New Version</span><span>&nbsp;and upload petclinic-2.0.war</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image35.png"></p>
+
+<p><span></span></p>
+
+<p><span>Now, verify that your new application version has been correctly uploaded.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image23.png"></p>
+
+<h2><a name="h.9vs3tfaz8kwa"></a><span>3.3 - Create a new QA environment</span></h2>
+
+<p><span>Click </span><span>Launch New Environment</span><span>&nbsp;button and fill the form with </span><span>petclinic-{{page.groupId}}-qa</span><span>&nbsp;as environment name. Indicate that you want to use an existing application version and select </span><span>petclinic-{{page.groupId}}-2.0.</span>
+</p>
+
+<p><span></span></p>
+
+<p>
+    <span>In the Container Type, indicate </span><span>64bit Amazon Linux running Tomcat 7</span><span>, then click </span><span>Continue.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image29.png"></p>
+
+<p><span></span></p>
+
+<p><span>On the next step, indicate that you want to </span><span>Load a Saved Configuration</span><span>&nbsp;by selecting the </span><span>petclinic-configuration-{{page.groupId}}</span><span>&nbsp;configuration, and click </span><span>Continue</span><span>.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image40.png"></p>
+
+<p><span></span></p>
+
+<p><span>Verify your environment information and click </span><span>Finish</span><span>.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image15.png"></p>
+
+<h2><a name="h.b3fpwc2c9p72"></a><span>3.4 - Deploy the new application version with Zero Downtime</span></h2>
+
+<p><span>Now, you have 2 environments:</span></p>
+<ol start="1">
+    <li><span>QA (Blue Slice)</span></li>
+    <li><span>PRD (Green Slice)</span></li>
+</ol>
+<p><span></span></p>
+
+<p><span>Make sure that your new environment is in the Green and Ready state.</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image41.png"></p>
+
+<p><span></span></p>
+
+<p><span>Click the </span><span>Actions</span><span>&nbsp;drop-down list on your live production application environment and select </span><span>Swap Environment URL</span><span>.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image27.png"></p>
+
+<p><span></span></p>
+
+<p><span>In the </span><span>Swap Environment URL</span><span>&nbsp;window, select </span><span>petclinic-{{page.groupId}}-qa</span><span>&nbsp;from the </span><span>Environment Name</span><span>&nbsp;pull-down menu, and then click on </span><span>Swap URL</span><span>.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image02.png"></p>
+
+<p><span></span></p>
+
+<p><span>Now the new release version of your application is accessible through the URL of your live production environment.</span>
+</p>
+
+<p><span></span></p>
+
+<p><img src="images/image38.png"></p>
+
+<p><span></span></p>
+
+<p><span>Enjoy!</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image32.png"></p>
+
+<h1><a name="h.ekdmt8gdrqry"></a><span>4 - Stress Test with Gatling</span></h1>
+
+<p>
+    <span>To view Beanstalk adding/removing EC2 instances to handle the load, we have created a simple stress test with </span><span><a
+        href="http://gatling-tool.org/">Gatling</a></span><span>.</span></p>
+
+<p><img src="images/image07.png"></p>
+
+<p><span>Here&rsquo;s the configuration we have used to handle the load for our stress test:</span></p>
+
+<p><span></span></p>
+
+<p><img src="images/image13.png"></p>
+
+<p><img src="images/image18.png"></p>
+
+<p><span></span></p>
+
+<p><span>Starting the stress test Beanstalk provides one instance:</span></p>
+
+<p><img src="images/image06.png"></p>
+
+<p><span>While the stress test move on, Beanstalk start to create instances.</span></p>
+
+<p><span>In the following screenshot we can see that a new instance is created by Beanstalk but is not yet ready:</span>
+</p>
+
+<p><img src="images/image33.png"></p>
+
+<p><span>A few moments later we can see that the previous instance is now up and functional to handle the load: </span>
+</p>
+
+<p><img src="images/image08.png"></p>
+
+<p><span>A moment later we have 4 instances:</span></p>
+
+<p><img src="images/image39.png"></p>
+
+<p><span>Once the stress test has finished, Beanstalk will remove each instance one by one:</span></p>
+
+<p><img src="images/image22.png"></p>
+
+<p><span>And finally we are back to one instance in our environment:</span></p>
+
+<p><img src="images/image25.png"></p>
