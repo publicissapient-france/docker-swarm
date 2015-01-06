@@ -19,11 +19,57 @@ $ ssh -i docker-janvier.pem ubuntu@{{page.groupId}}-docker.aws.xebiatechevent.in
 <h2>Introduction à docker</h2>
 
 <h2>Introduction à Docker Hub</h2>
+
 <p><img src="../images/dockerhub.png"></p>
-<h3>Création d'un compte</h3>
+
+<h3>Création de votre compte</h3>
+
 <p>Un compte sur Docker Hub vous permettra de stocker vos images dans le registre. Pour commencer il suffit d'aller à l'adresse suivante <a href="https://hub.docker.com/">hub.docker.com</a> et de remplir le formulaire</p>
-<p><b>Remarque :</b> Le nom d'utilisateur doit impérativement être en minuscule</p>
+<p><em>Remarque :</em> Le nom d'utilisateur doit impérativement être en minuscule</p>
+
 <p><img src="../images/dockerhub-signup.png"></p>
+
+<p>Maintenant que vous avez créé votre compte, il va falloir l'activer. Consultez vos e-mails, et cliquez sur le lien de confirmation.</p>
+
+<p>C'est le moment d'utiliser votre nouveau compte pour vous connecter sur le Docker Hub!</p>
+
+{% highlight bash %}
+$ docker login
+Username: mon_login
+Password:
+Email: mon@email.com
+Login Succeeded
+{% endhighlight %}
+
+<p>Vos identifiants de connexion sont stockés au sein du fichier <em>~/.dockercfg</em></p>
+
+{% highlight bash %}
+$ cat ~/.dockercfg
+{
+  "https://index.docker.io/v1/": {
+    "auth":"gjfhdkhgurieabirueb=",
+    "email":"mon@email.com"
+  }
+}
+{% endhighlight %}
+
+<p>Vous pouvez maintenant naviguer au sein du Docker Hub! L'onglet "repositories" contient toutes vos images publiques ou privées.</p>
+<p>Docker Hub donne accès à plusieurs dizaines de milliers d'images sur lesquelles vous pouvez vous appuyer pour construire vos propre images.</p>
+<p>Certaines de ces images sont des images officiels et n'utilise pas de namespace. la plupart des images sont créées et maintenus par la communauté</p>
+
+<h3>Création d'un Repository</h3>
+
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
 <p></p>
 <p></p>
 <p></p>
