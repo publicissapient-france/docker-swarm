@@ -284,9 +284,13 @@ ENTRYPOINT["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
 $ docker run -d -p 8000:80 xebia/apache
 {% endhighlight %}
 
-
 <h3>Création de notre containeur tomcat</h3>
 
+<p>Vous allez maintenant procéder de manière similaire pour créer une image basé sur ubuntu et contenant un serveur tomcat. Penser à exposer le port 8080 et à ne pas lancer tomcat en arrière plan.</p>
+
+
 <h3>Lier le containeur docker avec le containeur tomcat</h3>
+
+<p>Maintenant que nous avons crées nos containeurs, nous allons essayer de lier nos snotaineurs entre eux. Pour celà, nous allons commencer par modifier notre containeur apache afin de la transformer en proxy, afin de rediriger les requêtes du apache vers le tomcat.</p>
 
 <h2>Orchestration avec Fig</h2>
