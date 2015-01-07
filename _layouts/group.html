@@ -135,6 +135,18 @@ Pour supprimer un container, on peut utiliser la commande :</p>
 $ docker rm apache2 
 {% endhighlight %}
 
+<h3>Gérer la mémoire et le CPU</h3>
+
+<p>Il est possible de spécifier à notre containeur la quantité de mémoire que nous allons lui allouer, ainsi que la portion du cpu qu'il est autoriser à utiliser. Essayer de limiter la mémoire allouer à notre containeur par exemple à 5 Mo.</p>
+
+<div class = 'solution'>
+{% highlight bash %}
+$ docker rm apache2
+$ docker run -m 5m -t -i apache2 --name="apache2" apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+{% endhighlight %}
+</div>
+
+
 <h3>Les redirections de port</h3>
 
 <p>Pouvoir accéder à un container via son adresse IP est bien, mais dans la majorité des cas, on aura uniquement accès à l'adresse IP de l'hote. 
