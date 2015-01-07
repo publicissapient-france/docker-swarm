@@ -310,9 +310,9 @@ $ docker run -d -p 8000:80 xebia/apache
 
 {% highlight bash %}
 $ docker login
-Username: mon_login
+Username: {{page.groupId}}
 Password:
-Email: mon@email.com
+Email: {{page.groupId}}@email.com
 Login Succeeded
 {% endhighlight %}
 
@@ -323,7 +323,7 @@ $ cat ~/.dockercfg
 {
   "https://index.docker.io/v1/": {
     "auth":"gjfhdkhgurieabirueb=",
-    "email":"mon@email.com"
+    "email":"{{page.groupId}}@email.com"
   }
 }
 {% endhighlight %}
@@ -342,7 +342,7 @@ $ cat ~/.dockercfg
   Vous pouvez également ajouter un bref descriptif et enfin, laissez <em>Public</em> sélectionné pour le type de repository.
   Vus pouvez maintenant soumettre le formulaire en cliquant sur le bouton <em>Add Repository</em></p>
   
-  <p><img src="../images/dockerhub-add-repo.png"></p>
+<p><img src="../images/dockerhub-add-repo.png"></p>
   
 <p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository. 
 Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
@@ -356,7 +356,7 @@ $ docker run -it ubuntu bash
 root@<votreContaineurId>:/#
 {% endhighlight %}
 
-</div
+</div>
 
 <p>Il faut maintenant rafraichir la liste des packages disponibles à l'installation, 
 puis installer le package <em>cmatrix</em>.</p>
@@ -368,5 +368,94 @@ root@<votreContaineurId>:/# apt-get update && apt-get install -y cmatrix
 {% endhighlight %}
 
 </div>
+
+<p>Tapez <em>exit</em> dans le terminal afin de quitter la session interactive. 
+Vous pouvez maintenant examiner les changements effectués sur votre containeur en utilisant la commande <em>docker diff</em></p>
+
+<div class = 'solution'>
+
+{% highlight bash %}
+$ docker diff $(docker ps -lq)
+...
+C /usr/bin
+A /usr/bin/cmatrix
+C /root
+A /root/.bash_history
+...
+{% endhighlight %}
+
+</div>
+
+<p>Docker conserve la trace de tous les fichiers qui ont été modifiés (C), ajoutés (A) ou supprimés (D) 
+par rapport à l'image de base utilisée pour construire le containeur. 
+Par exemple, le fichier <em>.bash_history</em> a été créé car vous avez éxécuté de commandes dans l'invite de commande.</p>
+
+<p>Vous pouvez maintenant commiter ces modifications afin de pouvoir créer votre propre image <em>cmatrix</em> 
+en indiquant un tag afin de préparer le push sur le registre.</p>
+
+<div class = 'solution'>
+
+{% highlight bash %}
+$ docker commit $(docker ps -lq) {{page.groupId}}/cmatrix
+<monImageId>
+{% endhighlight %}
+
+</div>
+
+<p>Vous pouvez maintenant utiliser le tag de votre image pour lancer votre containeur</p>
+
+{% highlight bash %}
+$ docker run -it {{page.groupId}}/cmatrix cmatrix
+{% endhighlight %}
+
+<p>Si vous êtes curieux, vous pouvez jeter un oeil à toutes les couches qui composent votre image avec la commande <em>docker history</em></p>
+
+{% highlight bash %}
+$ docker history {{page.groupId}}/cmatrix
+{% endhighlight %}
+
+<p>Maintenant que votre image est correctement nommée, vous pouvez la pousser sur le registre</p>
+
+{% highlight bash %}
+$ docker push {{page.groupId}}/cmatrix
+The push refers to a repository [{{page.groupId}}/cmatrix] (len: 1)
+Sending image list
+Pushing repository {{page.groupId}}/cmatrix (1 tags)
+511136ea3c5a: Image already pushed, skipping 
+3b363fd9d7da: Image already pushed, skipping 
+607c5d1cca71: Image already pushed, skipping 
+f62feddc05dc: Image already pushed, skipping 
+8eaa4ff06b53: Image already pushed, skipping 
+45994cc5ab57: Image already pushed, skipping 
+Pushing tag for rev [45994cc5ab57] on {https://cdn-registry-1.docker.io/v1/repositories/{{page.groupId}}/cmatrix/tags/latest}
+{% endhighlight %}
+
+<p>Vous pouvez maintenant retourner sur le Docker Hub et vérifier que votre image a bien été poussé en consultant la liste des tags.</p>
+
+<p><img src="../images/dockerhub-push-image.png"></p>
+
+<p>Vous pouvez également utiliser le tag de votre image pour lancer votre containeur depuis le Docker Hub.
+Pour cela commencez par supprimer le containeur que vous venez de lancer puis supprimez l'image <em>{{page.groupId}}/cmatrix</em></p>
+
+<div class = 'solution'>
+
+{% highlight bash %}
+$ docker rm -f $(docker ps -lq)
+<monImageId>
+$ docker rmi {{page.groupId}}/cmatrix
+Untagged: {{page.groupId}}/cmatrix:latest
+Deleted: <monImageId>
+{% endhighlight %}
+
+</div>
+
+<p>A présent, relancez votre image depuis le Docker Hub</p>
+
+{% highlight bash %}
+$ docker run -it {{page.groupId}}/cmatrix cmatrix
+{% endhighlight %}
+
+<p><em>Astuce :</em> Si vous souhaitez vous détacher de votre container sans pour autant l'arrêter, 
+vous pouvez utiliser la combinaison de touches suivantes <em>Ctrl + P / Ctrl + Q</em></p>
 
 <h2>Orchestration avec Fig</h2>
