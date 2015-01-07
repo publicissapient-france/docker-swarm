@@ -464,3 +464,55 @@ Pour celà, nous allons commencer par modifier notre containeur apache afin de l
 afin de rediriger les requêtes du apache vers le tomcat.</p>
 
 <h2>Orchestration avec Fig</h2>
+
+<p>Fig est un outil permettant de définir l'ensemble des services qui compose une application, au sein d'un même fichier de description, 
+afin de pouvoir les lancer conjointement au sein d'un environnement isolé</p>
+
+<h3>Installation de Fig</h3>
+
+<p>Fig se présente sous la forme d'un binaire qui peut être installé de manière très simple avec la commande suivante :</p>
+
+{% highlight bash %}
+$ curl -L https://github.com/docker/fig/releases/download/1.0.1/fig-`uname -s`-`uname -m` > /usr/local/bin/fig
+$ chmod +x /usr/local/bin/fig
+$ fig --version
+fig 1.0.1
+{% endhighlight %}
+
+<h3>Utilisation de Fig</h3>
+
+<p>Clonez le code source de l'application</p>
+
+{% highlight bash %}
+$ git clone https://github.com/jlrigau/simplefig.git
+$ cd simplefig
+{% endhighlight %}
+
+<p>Vous devez alors créer un nouveau <em>Dockerfile</em></p>
+
+{% highlight bash %}
+FROM python:2.7
+ADD requirements.txt /code/requirements.txt
+WORKDIR /code
+RUN pip install -r requirements.txt
+ADD . /code
+{% endhighlight %}
+
+<p>Maintenant vous pouvez ajouter un fichier <em>fig.yml</em> pour stocker les propriétés d'éxécution de votre application :</p>
+
+{% highlight bash %}
+web:
+  build: .
+  command: python app.py
+  ports:
+    - "5000:5000"
+  volumes:
+    - .:/code
+  links:
+    - redis
+redis:
+  image: orchardup/redis
+{% endhighlight %}
+
+<p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application 
+avec les bons paramètres, notamment les liens entre vos différents containeurs</p>
