@@ -18,8 +18,12 @@ $ ssh -i docker-janvier.pem ubuntu@{{page.vmDns}}
 
 <h2>Introduction à docker</h2>
 
+<p><a href="https://docs.google.com/a/xebia.fr/presentation/d/13i_rW7iEJDBRo3dISLdSmSlkQj9dK1v2AizDYNYned8"><img src="../images/docker-quick-start.png"></a></p>
+
 <h2>Commande de base de docker</h2>
+
 <h3>Les images docker</h3>
+
 <p>Pour commencer à jouer avec docker, nous allons commencer par chercher une image de base. Les images de base correspondent plus au moin à des distributions linux sans kerner. Pour voir la liste des images disponible, taper la commander :</p>
 {% highlight bash %}
 $ docker images
@@ -342,6 +346,13 @@ Alors vous pourrez vous réattacher à votre containeur en utilisant la commande
 {% highlight bash %}
 $ docker attach $(docker ps -lq)
 {% endhighlight %}
+
+<h3>Création d'un Build Automatisé</h3>
+
+<p>Cliquez sur le menu déroulant <em>Add Repository</em> et sélectionnez <em>Automated Build</em></p>
+
+
+
 
 <h2>Création de votre DockerFile</h2>
 
