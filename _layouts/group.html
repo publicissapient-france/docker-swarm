@@ -345,6 +345,28 @@ $ cat ~/.dockercfg
   <p><img src="../images/dockerhub-add-repo.png"></p>
   
 <p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository. 
-    Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
+Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
+
+<p>Pour commencer, lancer un terminal à l'intérieur d'un containeur <em>ubuntu</em> en mode intéractif</p>
+
+<div class = 'solution'>
+
+{% highlight bash %}
+$ docker run -it ubuntu bash
+root@<votreContaineurId>:/#
+{% endhighlight %}
+
+</div
+
+<p>Il faut maintenant rafraichir la liste des packages disponibles à l'installation, 
+puis installer le package <em>cmatrix</em>.</p>
+
+<div class = 'solution'>
+
+{% highlight bash %}
+root@<votreContaineurId>:/# apt-get update && apt-get install -y cmatrix
+{% endhighlight %}
+
+</div>
 
 <h2>Orchestration avec Fig</h2>
