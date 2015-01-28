@@ -5,6 +5,8 @@
   tasks:
   - name: Install docker
     apt: name=docker.io state=present
+  - name: Add ubuntu to docker group
+    user: name=ubuntu groups=docker
   - name: Set up authorized_keys for the admin user
     authorized_key: user=ubuntu
                     key="{{ item }}"
