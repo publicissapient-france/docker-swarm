@@ -312,20 +312,20 @@ $ docker run -d -p 8000:80 xebia/apache
 <h2>Communication inter-container</h2>
 
 <p>Dans cette partie nous allons créer deux container avec pour objectif d'établir une connexion entre ces-derniers.
-Nous allons créer deux containers : l'un contenant un serveur apache, et l'autre contenant un serveur tomcat.
+Nous allons créer deux containers : l'un contenant un serveur apache, et l'autre contenant un serveur Tomcat.
 Une fois ces deux serveurs crées, nous verrons comment les faire communiquer entre eux.
 Vous pourrez utiliser l'image créé dans la partie précédente pour démarrer un conteneur apache</p>
 
-<h3>Création de notre container tomcat</h3>
+<h3>Création de notre container Tomcat</h3>
 
 <p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur Ubuntu et contenant un serveur Tomcat.
 Pensez à exposer le port 8080 et à ne pas lancer Tomcat en arrière plan.</p>
 
-<h3>Lier le container apache avec le container tomcat</h3>
+<h3>Lier le container apache avec le container Tomcat</h3>
 
 <p>Maintenant que nous avons créés nos containers, nous allons essayer de les lier entre eux.
 Pour celà, nous allons commencer par modifier notre container apache afin de la transformer en proxy,
-afin de rediriger les requêtes à destination du serveur apache vers le tomcat.</p>
+afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
 <h2>Orchestration avec Fig</h2>
 
