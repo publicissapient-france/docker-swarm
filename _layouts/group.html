@@ -112,6 +112,15 @@ $ docker run -t -i --name="apache2" apache2 apache2ctl -f /etc/apache2/apache2.c
 {% endhighlight %}
 </div>
 
+<p><em>Astuce :</em> Si vous souhaitez vous détacher de votre container sans pour autant l'arrêter,
+vous pouvez utiliser la combinaison de touches suivantes <em>Ctrl + P / Ctrl + Q</em>.
+Alors vous pourrez vous réattacher à votre containeur en utilisant la commande <em>docker attach</em></p>
+
+{% highlight bash %}
+$ docker attach $(docker ps -lq)
+{% endhighlight %}
+
+
 <h3>Récupérer les informations d'un container docker</h3>
 
 <p>Maintenant que notre container docker est démarré, nous aimerions bien récupérer certaines informations comme par exemple son adresse IP.
@@ -343,13 +352,6 @@ Deleted: <monImageId>
 $ docker run -it {{page.groupId}}/cmatrix cmatrix
 {% endhighlight %}
 
-<p><em>Astuce :</em> Si vous souhaitez vous détacher de votre container sans pour autant l'arrêter, 
-vous pouvez utiliser la combinaison de touches suivantes <em>Ctrl + P / Ctrl + Q</em>. 
-Alors vous pourrez vous réattacher à votre containeur en utilisant la commande <em>docker attach</em></p>
-
-{% highlight bash %}
-$ docker attach $(docker ps -lq)
-{% endhighlight %}
 
 <h2>Création de votre DockerFile</h2>
 
