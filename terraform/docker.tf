@@ -1,11 +1,8 @@
-# Configure the AWS Provider
-# debian base ami : ami-1d61a76a
-# sim-service ami : ami-24f84b53
 
 variable "access_key" {}
 variable "secret_key" {}
 variable "docker_count" {
-  default = "2"
+  default = "4"
 }
 variable "groups" {
   default = {
