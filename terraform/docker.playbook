@@ -1,0 +1,12 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  sudo: yes
+  tasks:
+  - name: Install docker
+    apt: name=docker.io state=present
+  - name: Set up authorized_keys for the admin user
+    authorized_key: user=ubuntu
+                    key="{{ item }}"
+    with_file:
+    - public_keys/tauffredou.pub
