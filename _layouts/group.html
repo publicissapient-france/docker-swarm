@@ -4,7 +4,7 @@ css: ../stylesheets/stylesheet.css
 ---
 
 <p>Dans ce workshop, vous aurez à votre disposition une instance amazon. 
-Vous pouvez également utiliser directement votre machine, ou si vous le preferez, une machine virtuelle.</p>
+Vous pouvez également utiliser directement votre machine, ou si vous le préférez, une machine virtuelle.</p>
 
 <p>Toutes les machines utilisent la même clef ssh, et ont le même login <em>ubuntu</em>.</p>
 
@@ -80,7 +80,7 @@ si il n'a plus de processus en foreground, le container s'éteint. Pour le véri
 $ docker ps
 {% endhighlight %}
 
-<p>qui à l'instar de son éponyme linux, liste les containers docker vivant. Nous pouvons aussi lancer la commande :</p>
+<p>qui à l'instar de son éponyme linux, liste les containers docker vivants. Nous pouvons aussi lancer la commande :</p>
 
 {% highlight bash %}
 $ docker ps -a
@@ -199,166 +199,10 @@ $ docker run -t -i -p 8000:80 -v ~/test:/var/www/html --name="apache2" apache2 a
 {% endhighlight %}
 </div>
 
-<h2>Utilisation du Docker Hub</h2>
-
-<p><img src="../images/dockerhub.png"></p>
-
-<h3>Création de votre compte</h3>
-
-<p>Un compte sur Docker Hub vous permettra de stocker vos images dans le registre. 
-Pour commencer il suffit d'aller à l'adresse suivante <a href="https://hub.docker.com/">hub.docker.com</a> et de remplir le formulaire</p>
-<p><em>Remarque :</em> Le nom d'utilisateur doit impérativement être en minuscule</p>
-
-<p><img src="../images/dockerhub-signup.png"></p>
-
-<p>Maintenant que vous avez créé votre compte, il va falloir l'activer. Consultez vos e-mails, et cliquez sur le lien de confirmation.</p>
-
-<p>C'est le moment d'utiliser votre nouveau compte pour vous connecter sur le Docker Hub!</p>
-
-{% highlight bash %}
-$ docker login
-Username: {{page.groupId}}
-Password:
-Email: {{page.groupId}}@email.com
-Login Succeeded
-{% endhighlight %}
-
-<p>Vos identifiants de connexion sont stockés au sein du fichier <em>~/.dockercfg</em></p>
-
-{% highlight bash %}
-$ cat ~/.dockercfg
-{
-  "https://index.docker.io/v1/": {
-    "auth":"gjfhdkhgurieabirueb=",
-    "email":"{{page.groupId}}@email.com"
-  }
-}
-{% endhighlight %}
-
-<p>Vous pouvez maintenant naviguer au sein du Docker Hub! L'onglet "repositories" contient toutes vos images publiques ou privées.</p>
-<p>Docker Hub donne accès à plusieurs dizaines de milliers d'images sur lesquelles vous pouvez vous appuyer pour construire vos propre images.</p>
-<p>Certaines de ces images sont des images officielles et n'utilisent pas de namespace. La plupart des images sont créées et maintenues par la communauté</p>
-
-<h3>Création d'un Repository</h3>
-
-<p>Cliquez sur le menu déroulant <em>Add Repository</em> et sélectionnez <em>Repository</em></p>
-
-<p><img src="../images/dockerhub-create-repo.png"></p>
-
-<p>Vous pouvez laisser le <em>namespace</em> par défaut (votre username), puis indiquez le nom de votre repository.
-Vous pouvez également ajouter un bref descriptif et enfin, laissez <em>Public</em> sélectionné pour le type de repository.
-Vous pouvez maintenant soumettre le formulaire en cliquant sur le bouton <em>Add Repository</em></p>
-  
-<p><img src="../images/dockerhub-add-repo.png"></p>
-  
-<p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository. 
-Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
-
-<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>ubuntu</em> en mode intéractif</p>
-
-<div class = 'solution'>
-{% highlight bash %}
-$ docker run -it ubuntu bash
-root@<votreContaineurId>:/#
-{% endhighlight %}
-</div>
-
-<p>Il faut maintenant rafraichir la liste des packages disponibles à l'installation, 
-puis installer le package <em>cmatrix</em>.</p>
-
-<div class = 'solution'>
-{% highlight bash %}
-root@<votreContaineurId>:/# apt-get update && apt-get install -y cmatrix
-{% endhighlight %}
-</div>
-
-<p>Tapez <em>exit</em> dans le terminal afin de quitter la session interactive. 
-Vous pouvez maintenant examiner les changements effectués sur votre container en utilisant la commande <em>docker diff</em></p>
-
-<div class = 'solution'>
-{% highlight bash %}
-$ docker diff $(docker ps -lq)
-...
-C /usr/bin
-A /usr/bin/cmatrix
-C /root
-A /root/.bash_history
-...
-{% endhighlight %}
-</div>
-
-<p>Docker conserve la trace de tous les fichiers qui ont été modifiés (C), ajoutés (A) ou supprimés (D) 
-par rapport à l'image de base utilisée pour construire le containeur. 
-Par exemple, le fichier <em>.bash_history</em> a été créé car vous avez éxécuté des commandes dans l'invité de commande.</p>
-
-<p>Vous pouvez maintenant commiter ces modifications afin de pouvoir créer votre propre image <em>cmatrix</em> 
-en indiquant un tag afin de préparer le push sur le registre.</p>
-
-<div class = 'solution'>
-{% highlight bash %}
-$ docker commit $(docker ps -lq) {{page.groupId}}/cmatrix
-<monImageId>
-{% endhighlight %}
-</div>
-
-<p>Vous pouvez maintenant utiliser le tag de votre image pour lancer votre container</p>
-
-{% highlight bash %}
-$ docker run -it {{page.groupId}}/cmatrix cmatrix
-{% endhighlight %}
-
-<p>Si vous êtes curieux, vous pouvez jeter un oeil à toutes les couches qui composent votre image avec la commande <em>docker history</em></p>
-
-{% highlight bash %}
-$ docker history {{page.groupId}}/cmatrix
-{% endhighlight %}
-
-<p>Maintenant que votre image est correctement nommée, vous pouvez la pousser sur le registre</p>
-
-{% highlight bash %}
-$ docker push {{page.groupId}}/cmatrix
-The push refers to a repository [{{page.groupId}}/cmatrix] (len: 1)
-Sending image list
-Pushing repository {{page.groupId}}/cmatrix (1 tags)
-511136ea3c5a: Image already pushed, skipping 
-3b363fd9d7da: Image already pushed, skipping 
-607c5d1cca71: Image already pushed, skipping 
-f62feddc05dc: Image already pushed, skipping 
-8eaa4ff06b53: Image already pushed, skipping 
-45994cc5ab57: Image already pushed, skipping 
-Pushing tag for rev [45994cc5ab57] on {https://cdn-registry-1.docker.io/v1/repositories/{{page.groupId}}/cmatrix/tags/latest}
-{% endhighlight %}
-
-<p>Vous pouvez maintenant retourner sur le Docker Hub et vérifier que votre image a bien été poussée en consultant la liste des tags.</p>
-
-<p><img src="../images/dockerhub-push-image.png"></p>
-
-<p>Vous pouvez également utiliser le tag de votre image pour lancer votre container depuis le Docker Hub.
-Pour cela commencez par supprimer le container que vous venez de lancer puis supprimez l'image <em>{{page.groupId}}/cmatrix</em></p>
-
-<div class = 'solution'>
-{% highlight bash %}
-$ docker rm -f $(docker ps -lq)
-<monImageId>
-$ docker rmi {{page.groupId}}/cmatrix
-Untagged: {{page.groupId}}/cmatrix:latest
-Deleted: <monImageId>
-{% endhighlight %}
-</div>
-
-<p>A présent, relancez votre image depuis le Docker Hub</p>
-
-{% highlight bash %}
-$ docker run -it {{page.groupId}}/cmatrix cmatrix
-{% endhighlight %}
-
-
 <h2>Création de votre DockerFile</h2>
 
 <p>Dans la première partie, nous avons vu comment créer un container docker à partir des commandes de base. 
-Il existe un autre moyen de créer des containers docker grâce à un fichier appelé Dockerfile. 
-Nous allons maintenant créer deux containers : l'un contenant un serveur apache, et l'autre contenant un tomcat. 
-Une fois ces deux serveurs crées, nous verrons comment les faire communiquer entre eux.</p>
+Il existe un autre moyen de créer des containers docker grâce à un fichier appelé Dockerfile.</p>
 
 <p>La commande <em>docker build</em> lancée dans un répertoire cherche un fichier nommé <em>Dockerfile</em>,
 et à partir de celui-ci crée un image docker. Cette image peut en suite être utilisée pour lancer un container.</p>
@@ -465,21 +309,32 @@ ENTRYPOINT["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
 $ docker run -d -p 8000:80 xebia/apache
 {% endhighlight %}
 
-<h3>Création de notre container tomcat</h3>
+<h2>Communication inter-container</h2>
 
-<p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur ubuntu et contenant un serveur tomcat.
-Penser à exposer le port 8080 et à ne pas lancer tomcat en arrière plan.</p>
+<p>Dans cette partie nous allons créer deux container avec pour objectif d'établir une connexion entre ces-derniers.
+Nous allons créer deux containers : l'un contenant un serveur apache, et l'autre contenant un serveur Tomcat.
+Une fois ces deux serveurs crées, nous verrons comment les faire communiquer entre eux.
+Vous pourrez utiliser l'image créé dans la partie précédente pour démarrer un conteneur apache</p>
 
-<h3>Lier le container docker avec le container tomcat</h3>
+<h3>Création de notre container Tomcat</h3>
 
-<p>Maintenant que nous avons crées nos containers, nous allons essayer de les lier entre eux.
+<p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur Ubuntu et contenant un serveur Tomcat.
+Pensez à exposer le port 8080 et à ne pas lancer Tomcat en arrière plan.</p>
+
+<p>TODO: ajouter dockerFile de la création du container en solution</p>
+
+<h3>Lier le container apache avec le container Tomcat</h3>
+
+<p>Maintenant que nous avons créés nos containers, nous allons essayer de les lier entre eux.
 Pour celà, nous allons commencer par modifier notre container apache afin de la transformer en proxy,
-afin de rediriger les requêtes à destination du serveur apache vers le tomcat.</p>
+afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
+
+<p>TODO: leur dire de copier le fichier de conf (fourni) au bon endroit, la commande en soluce.</p>
 
 <h2>Orchestration avec Fig</h2>
 
 <p>Fig est un outil permettant de définir l'ensemble des services qui composent une application au sein d'un même fichier de description,
-afin de pouvoir les lancer conjointement au sein d'un environnement isolé</p>
+afin de pouvoir les lancer conjointement au sein d'un environnement isolé.</p>
 
 <h3>Installation de Fig</h3>
 
@@ -529,3 +384,157 @@ redis:
 
 <p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application 
 avec les bons paramètres, notamment les liens entre vos différents containers</p>
+
+
+<h2>Utilisation du Docker Hub</h2>
+
+<p><img src="../images/dockerhub.png"></p>
+
+<h3>Création de votre compte</h3>
+
+<p>Un compte sur Docker Hub vous permettra de stocker vos images dans le registre.
+  Pour commencer il suffit d'aller à l'adresse suivante <a href="https://hub.docker.com/">hub.docker.com</a> et de remplir le formulaire</p>
+<p><em>Remarque :</em> Le nom d'utilisateur doit impérativement être en minuscule</p>
+
+<p><img src="../images/dockerhub-signup.png"></p>
+
+<p>Maintenant que vous avez créé votre compte, il va falloir l'activer. Consultez vos e-mails, et cliquez sur le lien de confirmation.</p>
+
+<p>C'est le moment d'utiliser votre nouveau compte pour vous connecter sur le Docker Hub!</p>
+
+{% highlight bash %}
+$ docker login
+Username: {{page.groupId}}
+Password:
+Email: {{page.groupId}}@email.com
+Login Succeeded
+{% endhighlight %}
+
+<p>Vos identifiants de connexion sont stockés au sein du fichier <em>~/.dockercfg</em></p>
+
+{% highlight bash %}
+$ cat ~/.dockercfg
+{
+"https://index.docker.io/v1/": {
+"auth":"gjfhdkhgurieabirueb=",
+"email":"{{page.groupId}}@email.com"
+}
+}
+{% endhighlight %}
+
+<p>Vous pouvez maintenant naviguer au sein du Docker Hub! L'onglet "repositories" contient toutes vos images publiques ou privées.</p>
+<p>Docker Hub donne accès à plusieurs dizaines de milliers d'images sur lesquelles vous pouvez vous appuyer pour construire vos propre images.</p>
+<p>Certaines de ces images sont des images officielles et n'utilisent pas de namespace. La plupart des images sont créées et maintenues par la communauté</p>
+
+<h3>Création d'un Repository</h3>
+
+<p>Cliquez sur le menu déroulant <em>Add Repository</em> et sélectionnez <em>Repository</em></p>
+
+<p><img src="../images/dockerhub-create-repo.png"></p>
+
+<p>Vous pouvez laisser le <em>namespace</em> par défaut (votre username), puis indiquez le nom de votre repository.
+  Vous pouvez également ajouter un bref descriptif et enfin, laissez <em>Public</em> sélectionné pour le type de repository.
+  Vous pouvez maintenant soumettre le formulaire en cliquant sur le bouton <em>Add Repository</em></p>
+
+<p><img src="../images/dockerhub-add-repo.png"></p>
+
+<p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository.
+  Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
+
+<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>ubuntu</em> en mode intéractif</p>
+
+<div class = 'solution'>
+  {% highlight bash %}
+  $ docker run -it ubuntu bash
+  root@<votreContaineurId>:/#
+  {% endhighlight %}
+</div>
+
+<p>Il faut maintenant rafraichir la liste des packages disponibles à l'installation,
+  puis installer le package <em>cmatrix</em>.</p>
+
+<div class = 'solution'>
+  {% highlight bash %}
+  root@<votreContaineurId>:/# apt-get update && apt-get install -y cmatrix
+  {% endhighlight %}
+</div>
+
+<p>Tapez <em>exit</em> dans le terminal afin de quitter la session interactive.
+  Vous pouvez maintenant examiner les changements effectués sur votre container en utilisant la commande <em>docker diff</em></p>
+
+<div class = 'solution'>
+  {% highlight bash %}
+  $ docker diff $(docker ps -lq)
+  ...
+  C /usr/bin
+  A /usr/bin/cmatrix
+  C /root
+  A /root/.bash_history
+  ...
+  {% endhighlight %}
+</div>
+
+<p>Docker conserve la trace de tous les fichiers qui ont été modifiés (C), ajoutés (A) ou supprimés (D)
+  par rapport à l'image de base utilisée pour construire le containeur.
+  Par exemple, le fichier <em>.bash_history</em> a été créé car vous avez éxécuté des commandes dans l'invité de commande.</p>
+
+<p>Vous pouvez maintenant commiter ces modifications afin de pouvoir créer votre propre image <em>cmatrix</em>
+  en indiquant un tag afin de préparer le push sur le registre.</p>
+
+<div class = 'solution'>
+  {% highlight bash %}
+  $ docker commit $(docker ps -lq) {{page.groupId}}/cmatrix
+  <monImageId>
+    {% endhighlight %}
+</div>
+
+<p>Vous pouvez maintenant utiliser le tag de votre image pour lancer votre container</p>
+
+{% highlight bash %}
+$ docker run -it {{page.groupId}}/cmatrix cmatrix
+{% endhighlight %}
+
+<p>Si vous êtes curieux, vous pouvez jeter un oeil à toutes les couches qui composent votre image avec la commande <em>docker history</em></p>
+
+{% highlight bash %}
+$ docker history {{page.groupId}}/cmatrix
+{% endhighlight %}
+
+<p>Maintenant que votre image est correctement nommée, vous pouvez la pousser sur le registre</p>
+
+{% highlight bash %}
+$ docker push {{page.groupId}}/cmatrix
+The push refers to a repository [{{page.groupId}}/cmatrix] (len: 1)
+Sending image list
+Pushing repository {{page.groupId}}/cmatrix (1 tags)
+511136ea3c5a: Image already pushed, skipping
+3b363fd9d7da: Image already pushed, skipping
+607c5d1cca71: Image already pushed, skipping
+f62feddc05dc: Image already pushed, skipping
+8eaa4ff06b53: Image already pushed, skipping
+45994cc5ab57: Image already pushed, skipping
+Pushing tag for rev [45994cc5ab57] on {https://cdn-registry-1.docker.io/v1/repositories/{{page.groupId}}/cmatrix/tags/latest}
+{% endhighlight %}
+
+<p>Vous pouvez maintenant retourner sur le Docker Hub et vérifier que votre image a bien été poussée en consultant la liste des tags.</p>
+
+<p><img src="../images/dockerhub-push-image.png"></p>
+
+<p>Vous pouvez également utiliser le tag de votre image pour lancer votre container depuis le Docker Hub.
+  Pour cela commencez par supprimer le container que vous venez de lancer puis supprimez l'image <em>{{page.groupId}}/cmatrix</em></p>
+
+<div class = 'solution'>
+  {% highlight bash %}
+  $ docker rm -f $(docker ps -lq)
+  <monImageId>
+    $ docker rmi {{page.groupId}}/cmatrix
+    Untagged: {{page.groupId}}/cmatrix:latest
+    Deleted: <monImageId>
+    {% endhighlight %}
+</div>
+
+<p>A présent, relancez votre image depuis le Docker Hub</p>
+
+{% highlight bash %}
+$ docker run -it {{page.groupId}}/cmatrix cmatrix
+{% endhighlight %}
