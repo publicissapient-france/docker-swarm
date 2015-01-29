@@ -1,21 +1,45 @@
-
-variable "access_key" {}
-variable "secret_key" {}
+#
+# Export the following env variables:
+#   export AWS_ACCESS_KEY=change-me
+#   export AWS_SECRET_KEY=change-me
+#   export AWS_REGION=eu-west-1
+#
 variable "docker_count" {
   default = "4"
 }
 variable "groups" {
   default = {
-    "0" =  "adrastea"
-    "1" = "io"
-
+    "0" =  "io"
+    "1" = "europa"
+    "2" = "ganymede"
+    "3" = "callisto"
+    "4" = "amalthea"
+    "5" = "himalia"
+    "6" = "elara"
+    "7" = "pasiphae"
+    "8" = "sinope"
+    "9" = "lysithea"
+    "10" = "carme"
+    "11" = "ananke"
+    "12" = "leda"
+    "13" = "thebe"
+    "14" = "adrastea"
+    "15" = "metis"
+    "16" = "callirrhoe"
+    "17" = "themisto"
+    "18" = "megaclite"
+    "19" = "taygete"
+    "20" = "chaldene"
+    "21" = "harpalyke"
+    "22" = "kalyke"
+    "23" = "iocaste"
+    "24" = "erinome"
+    "25" = "isonoe"
+    "26" = "praxidike"
+    "27" = "autonoe"
+    "28" = "thyone"
+    "29" = "hermippe"
   }
-}
-
-provider "aws" {
-    access_key = "${var.access_key}"
-    secret_key = "${var.secret_key}"
-    region = "eu-west-1"
 }
 
 resource "aws_security_group" "docker-initiation-sg" {
@@ -53,10 +77,8 @@ resource "aws_subnet" "docker-initiation-net" {
       }
 }
 
-# DNS
-
 resource "aws_route53_record" "docker-record" {
-    name = "${concat("docker", count.index, ".aws.xebiatechevent.info")}"
+    name = "${concat("docker-",lookup(var.groups,count.index), ".aws.xebiatechevent.info")}"
     count = "${var.docker_count}"
     zone_id = "Z28O5PDK1WPCSR"
     type = "A"

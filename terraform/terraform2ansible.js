@@ -9,7 +9,8 @@ var attributes = ['public_ip', 'private_ip','type'];
 for (var key in resources) {
     var resource = resources[key];
     if (resource.type == 'aws_instance') {
-        var host = resource.primary.attributes;
+
+        var host = resource.primary ? resource.primary.attributes : resource.tainted.attributes;
         var myRegexp = /aws_instance\.([^.]*)/g;
         var match = myRegexp.exec(key);
         var type = match[1];
