@@ -1,8 +1,10 @@
 # Prérequis
 
-```
+```shell
 brew install node
-brew install 
+brew install terraform
+```
+
 
 # Démarrer l'infrastructure
 
