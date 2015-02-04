@@ -12,12 +12,8 @@ DATA_DIR=$CWD/../data
 
 # Create keys
 cd $CWD/private
-rm docker-temp*
+rm $KEY*
 ssh-keygen -f $KEY -N "" -q -C "$KEY@xebia"
-mv docker-temp.pub $CWD/public_keys
-mkdir -p $CWD/private_keys
-mv docker-temp $CWD/private_keys/docker-temp.pem
-puttygen $CWD/private_keys/docker-temp.pem -o $CWD/private_keys/docker-temp.ppk -O private
 
 if [ -f "$CWD/public_keys/$KEY.pub" ];then
   if [ ! -d $CWD/revoked_keys ];then
