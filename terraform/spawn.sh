@@ -7,6 +7,6 @@ fi
 
 terraform apply && (
   export ANSIBLE_HOST_KEY_CHECKING=False
-  node terraform2ansible.js
+  node terraform2ansible.js terraform.tfstate private/inventory
   ansible-playbook -i private/inventory --private-key=$1 docker.playbook
 )
