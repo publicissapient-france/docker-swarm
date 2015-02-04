@@ -9,6 +9,6 @@
     user: name=ubuntu groups=docker
   - name: Set up authorized_keys for the admin user
     authorized_key: user=ubuntu
-                    key="{{ item }}"
-    with_file:
-    - public_keys/tauffredou.pub
+                    key="{{ lookup('file',item) }}"
+    with_fileglob:
+    - public_keys/*.pub
