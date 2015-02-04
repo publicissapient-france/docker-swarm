@@ -22,3 +22,8 @@ Le script suivant lance la création de l'infrastructure sur AWS et éxécute le
 ./spawn.sh /path/to/docker-initation.pem
 ```
 
+Réinitialiser la clé ssh
+
+```shell
+./renew_key.sh /path/to/docker-initation.pem
+```
