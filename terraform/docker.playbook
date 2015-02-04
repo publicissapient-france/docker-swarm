@@ -10,5 +10,12 @@
   - name: Set up authorized_keys for the admin user
     authorized_key: user=ubuntu
                     key="{{ lookup('file',item) }}"
+                    state=present
     with_fileglob:
     - public_keys/*.pub
+  - name: Remove revoked keys
+    authorized_key: user=ubuntu
+        key="{{ lookup('file',item) }}"
+        state=absent
+    with_fileglob:
+    - revoked_keys/*.pub
