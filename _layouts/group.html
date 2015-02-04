@@ -341,7 +341,7 @@ CMD service tomcat7 start & touch foreground && tail -f foreground
 <div class = 'solution'>
 {% highlight bash %}
 $ docker build -t="xebia/tomcat" .
-$ docker run -d -p 8080:8080 --name="tomcat7" xebia/tomcat
+$ docker run -d -p 8080:8080 --name tomcat xebia/tomcat
 {% endhighlight %}
 </div>
 
@@ -417,16 +417,26 @@ RUN a2enmod proxy proxy_http
 
 # Update the default apache site with the config we created.
 ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
+
+CMD apache2ctl restart
+
 ADD proxy.conf /etc/apache2/mods-enabled/proxy.conf
 
-ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+CMD apache2ctl -D FOREGROUND
 {% endhighlight %}
 
 
 <p>Construisez votre nouvelle image et lancer la avec l'option link:</p>
 
 {% highlight bash %}
-docker run -d -p 8000:80 --name apache --link tomcat:xebia/tomcat xebia/apache
+$ docker build -t="xebia/apache" .
+$ docker run -d -p 8000:80 --name apache --link tomcat:tomcat xebia/apache
+{% endhighlight %}
+
+<p>Rendez-vous maintenant à l'adresse du serveur apache, et la page d'accueil de tomcat doit s'afficher.</p>
+
+{% highlight bash %}
+$ curl localhost:8000
 {% endhighlight %}
 
 <h2>Orchestration avec Fig</h2>
