@@ -25,6 +25,7 @@ mv $KEY.pub $CWD/public_keys
 
 mv $KEY $DATA_DIR/$KEY.pem
 puttygen $DATA_DIR/$KEY.pem -o $DATA_DIR/$KEY.ppk -O private
+chmod 600 $DATA_DIR/docker-janvier.{pem,ppk}
 
 # Apply
 cd $CWD
@@ -36,8 +37,8 @@ cat << EOF
 
 To publish the new keys into github, copy/paste the following :
 
-git add $CWD/../data/docker-janvier.{pem,ppk}
-git commit $CWD/../data/docker-janvier.{pem,ppk} -m "Renew private keys"
+git add $DATA_DIR/docker-janvier.{pem,ppk}
+git commit $DATA_DIR/docker-janvier.{pem,ppk} -m "Renew private keys"
 git push
 
 EOF
