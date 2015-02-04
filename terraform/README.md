@@ -1,8 +1,10 @@
 # Prérequis
 
+installer terraform à la main
 ```shell
 brew install node
-brew install terraform
+brew install ansible
+brew install putty
 ```
 
 
@@ -27,13 +29,13 @@ variable "docker_count" {
 ## Le script suivant lance la création de l'infrastructure sur AWS et éxécute le provisionning avec ansible
 
 ```shell
-./spawn.sh /path/to/docker-initation.pem
+./spawn.sh ~/Downloads/docker-initiation.pem
 ```
 
 # Réinitialiser la clé ssh
 
 ```shell
-./renew_key.sh /path/to/docker-initation.pem
+./renew_key.sh ~/Downloads/docker-initiation.pem
 ```
 
 # Détruire l'infrastructure
