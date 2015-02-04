@@ -356,9 +356,69 @@ $ curl localhost:8080
 Pour celà, nous allons commencer par modifier notre container apache afin de la transformer en proxy,
 afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
+<p>Fichier proxy.conf</p>
+
+{% highlight bash %}
+<IfModule mod_proxy.c>
+    ProxyRequests On
+    ProxyVia On
+
+    <Proxy *>
+      AddDefaultCharset off
+      Order deny,allow
+      Allow from all
+    </Proxy>
+
+</IfModule>
+{% endhighlight %}
+
+<p>Fichier apache-config.conf</p>
+
+{% highlight bash %}
+<VirtualHost *:80>
+  ServerAdmin webmaster@localhost
+  DocumentRoot /var/www/html
+
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+  ProxyPass / http://tomcat:8080
+  ProxyPassReverse / http://tomcat:8080
+
+  ProxyPreserveHost On
+
+  <Location />
+    Order allow,deny
+    Allow from all
+  </Location>
+
+</VirtualHost>
+{% endhighlight %}
 
 
-<p>TODO: leur dire de copier le fichier de conf (fourni) au bon endroit, la commande en soluce.</p>
+<p>DockerFile soluce</p>
+
+{% highlight bash %}
+FROM ubuntu
+
+MAINTAINER Xebia
+
+RUN apt-get update && apt-get -y install apache2 && apt-get clean
+
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+
+EXPOSE 80
+
+# Enable proxy and proxy_http mod
+RUN a2enmod proxy proxy_http
+
+# Update the default apache site with the config we created.
+ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
+ADD proxy.conf /etc/apache2/mods-enabled/proxy.conf
+
+ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+{% endhighlight %}
 
 <h2>Orchestration avec Fig</h2>
 
