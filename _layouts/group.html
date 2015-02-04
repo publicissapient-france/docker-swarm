@@ -307,7 +307,7 @@ ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
 <p>Vous pouvez maintenant lancer votre container apache grâce à la commande :</p>
 
 {% highlight bash %}
-$ docker run -d -p 8000:80 xebia/apache
+$ docker run -d -p 8000:80 --name="apache2" xebia/apache
 {% endhighlight %}
 
 <h2>Communication inter-container</h2>
@@ -324,16 +324,16 @@ Pensez à exposer le port 8080 et à ne pas lancer Tomcat en arrière plan.</p>
 
 <p>Commencez par créer un nouveau Dockerfile pour construire l'image tomcat</p>
 <div class = 'solution'>
-  {% highlight bash %}
-  FROM ubuntu
+{% highlight bash %}
+FROM ubuntu
 
-  MAINTAINER Xebia
+MAINTAINER Xebia
 
-  RUN apt-get update && apt-get -y install tomcat7 && apt-get clean
+RUN apt-get update && apt-get -y install tomcat7 && apt-get clean
 
-  EXPOSE 8080
-  CMD service tomcat7 start & touch foreground && tail -f foreground
-  {% endhighlight %}
+EXPOSE 8080
+CMD service tomcat7 start & touch foreground && tail -f foreground
+{% endhighlight %}
 </div>
 
 <p>Une fois le Dockerfile crée, vous pouvez construire votre image tomcat puis lancer un container :</p>
@@ -341,14 +341,15 @@ Pensez à exposer le port 8080 et à ne pas lancer Tomcat en arrière plan.</p>
 <div class = 'solution'>
 {% highlight bash %}
 $ docker build -t="xebia/tomcat" .
-$ docker run -d -p 8080:8080 xebia/tomcat
+$ docker run -d -p 8080:8080 --name="tomcat7" xebia/tomcat
 {% endhighlight %}
 </div>
 
 
 <p>Utilisez wget, curl ou encore votre navigateur pour tester que tomcat est bien démarré :</p>
 {% highlight bash %}
-$ curl localhost:8080
+$ docker inspect tomcat7 | grep IPAddress
+$ curl xxx.xxx.xxx.xxx
 {% endhighlight %}
 
 <h3>Lier le container apache avec le container Tomcat</h3>
