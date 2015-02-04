@@ -5,7 +5,8 @@
 #   export AWS_REGION=eu-west-1
 #
 variable "docker_count" {
-  default = "4"
+  description = "Number of instances to spawn"
+  default = "2"
 }
 variable "groups" {
   default = {
