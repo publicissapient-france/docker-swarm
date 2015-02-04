@@ -1,6 +1,7 @@
 ---
 layout: main
 css: ../stylesheets/stylesheet.css
+js: ../javascripts/main.js
 ---
 
 <p>Dans ce workshop, vous aurez à votre disposition une instance amazon. 
@@ -108,7 +109,7 @@ $ docker run -i -t --name="apache2-build" ubuntu /bin/bash
 $ apt-get install apache2
 $ exit (on quitte le container)
 $ docker commit apache2-build apache2
-$ docker run -t -i --name="apache2" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+$ docker run -t -i --name="apache2BuildContainer" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
 {% endhighlight %}
 </div>
 
@@ -129,7 +130,7 @@ et de récuperer la page d'accueil avec une commande type curl ou wget</p>
 
 <div class = 'solution'>
 {% highlight bash %}
-$ docker inspect apache2 | grep IPAddress
+$ docker inspect apache2BuildContainer | grep IPAddress
 $ wget xxx.xxx.xxx.xxx
 {% endhighlight %}
 </div>
@@ -140,7 +141,7 @@ $ wget xxx.xxx.xxx.xxx
 Pour supprimer un container, on peut utiliser la commande :</p>
 
 {% highlight bash %}
-$ docker rm apache2 
+$ docker rm apache2BuildContainer 
 {% endhighlight %}
 
 <h3>Gérer la mémoire et le CPU</h3>
@@ -149,8 +150,8 @@ $ docker rm apache2
 
 <div class = 'solution'>
 {% highlight bash %}
-$ docker rm apache2
-$ docker run -m 5m -t -i apache2 --name="apache2" apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+$ docker rm apache2BuildContainer
+$ docker run -m 5m -t -i apache2 --name="apache2BuildContainer" apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
 {% endhighlight %}
 </div>
 
@@ -169,8 +170,8 @@ $ wget localhost:8000
 
 <div class = 'solution'>
 {% highlight bash %}
-$ docker rm apache2
-$ docker run -t -i -p 8000:80 --name="apache2" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+$ docker rm apache2BuildContainer
+$ docker run -t -i -p 8000:80 --name="apache2BuildContainer" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
 {% endhighlight %}
 </div>
 
@@ -192,10 +193,10 @@ puis monter ce répertoire sur le container docker.</p>
 
 <div class = 'solution'>
 {% highlight bash %}
-$ docker rm apache2
+$ docker rm apache2BuildContainer
 $ mkdir www
 $ echo coucou > www/index.html
-$ docker run -t -i -p 8000:80 -v ~/test:/var/www/html --name="apache2" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+$ docker run -t -i -p 8000:80 -v ~/test:/var/www/html --name="apache2BuildContainer" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
 {% endhighlight %}
 </div>
 
