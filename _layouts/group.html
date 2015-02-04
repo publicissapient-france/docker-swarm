@@ -19,7 +19,7 @@ $ chmod 400 docker-janvier.pem
 <p>Pour tester l'installation, et vous connecter à la première instance, tapez la commande : </p>
 
 {% highlight bash %}
-$ ssh -i docker-janvier.pem ubuntu@{{page.vmDns}}
+$ ssh -i docker-janvier.pem ubuntu@docker-{{page.groupId}}.aws.xebiatechevent.info
 {% endhighlight %}
 
 <h2>Introduction à docker</h2>
