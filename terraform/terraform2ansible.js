@@ -1,10 +1,21 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
+
+if (process.argv.length < 3) {
+  console.error('Usage: terraform2ansible.js <stateFile> [outputFile]');
+  process.exit(1);
+}
+
+var input = process.argv[2];
+var output = null;
+if(process.argv.length == 4){
+  output = process.argv[3];
+}
 
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync(__dirname + '/terraform.tfstate', 'utf8'));
+var config = JSON.parse(fs.readFileSync(input, 'utf8'));
 var resources = config.modules[0].resources;
 var ansible = {};
-var attributes = ['public_ip', 'private_ip','type'];
+var attributes = ['public_ip', 'private_ip','type','instance_type'];
 
 for (var key in resources) {
     var resource = resources[key];
@@ -24,24 +35,28 @@ for (var key in resources) {
     }
 }
 
-var stream = fs.createWriteStream("private/inventory");
-stream.once('open', function (fd) {
-    function writeHost(host) {
-        stream.write(host.public_ip);
-        for (var key in host) {
-            if (attributes.indexOf(key) != -1) {
-                stream.write(" " + key + "=\"" + host[key] + "\"");
-            }
-        }
-        stream.write("\n");
+var inventory = "";
+for (var key in ansible) {
+  inventory += "[" + key + "]\n";
+  ansible[key].forEach(function (host) {
+    inventory += host.public_ip;
+    for (var key in host) {
+      if (attributes.indexOf(key) != -1) {
+        inventory += " " + key + "=\"" + host[key] + "\"";
+      }
     }
+    inventory += "\n";
+  });
+}
 
-    for (var key in ansible) {
-        stream.write("[" + key + "]\n");
-        ansible[key].forEach(function (host) {
-            writeHost(host);
-        });
+if(output){
+  fs.writeFile(output,inventory, function(err) {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log(output + " was saved!");
     }
-
-    stream.end();
-});
+  });
+}else{
+  console.log(inventory)
+}

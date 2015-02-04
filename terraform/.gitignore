@@ -1,3 +1,5 @@
 private/*
 terraform.tfvars
 terraform.tfstate*
+
+revoked_keys/*
