@@ -420,6 +420,13 @@ ADD proxy.conf /etc/apache2/mods-enabled/proxy.conf
 ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
 {% endhighlight %}
 
+
+<p>Construisez votre nouvelle image et lancer la avec l'option link:</p>
+
+{% highlight bash %}
+docker run -d -p 8000:80 --name apache --link tomcat:xebia/tomcat xebia/apache
+{% endhighlight %}
+
 <h2>Orchestration avec Fig</h2>
 
 <p>Fig est un outil permettant de définir l'ensemble des services qui composent une application au sein d'un même fichier de description,
