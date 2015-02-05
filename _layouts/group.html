@@ -348,46 +348,22 @@ $ docker run -d -p 8080:8080 --name tomcat xebia/tomcat
 
 <p>Utilisez wget, curl ou encore votre navigateur pour tester que tomcat est bien démarré :</p>
 {% highlight bash %}
-$ docker inspect tomcat7 | grep IPAddress
-$ curl xxx.xxx.xxx.xxx
+$ curl localhost:8080
 {% endhighlight %}
 
 <h3>Lier le container apache avec le container Tomcat</h3>
 
 <p>Maintenant que nous avons créés nos containers, nous allons essayer de les lier entre eux.
-Pour celà, nous allons commencer par modifier notre container apache afin de la transformer en proxy,
+Pour celà, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
 afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
-<p>Fichier proxy.conf</p>
-
-{% highlight bash %}
-<IfModule mod_proxy.c>
-    ProxyRequests On
-    ProxyVia On
-
-    <Proxy *>
-      AddDefaultCharset off
-      Order deny,allow
-      Allow from all
-    </Proxy>
-
-</IfModule>
-{% endhighlight %}
 
 <p>Fichier apache-config.conf</p>
 
 {% highlight bash %}
 <VirtualHost *:80>
-  ServerAdmin webmaster@localhost
-  DocumentRoot /var/www/html
-
-  ErrorLog ${APACHE_LOG_DIR}/error.log
-  CustomLog ${APACHE_LOG_DIR}/access.log combined
-
   ProxyPass / http://tomcat:8080
   ProxyPassReverse / http://tomcat:8080
-
-  ProxyPreserveHost On
 
   <Location />
     Order allow,deny
@@ -398,7 +374,7 @@ afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.
 {% endhighlight %}
 
 
-<p>DockerFile soluce</p>
+<p>DockerFile pour l'image Apache</p>
 
 {% highlight bash %}
 FROM ubuntu
@@ -419,9 +395,6 @@ RUN a2enmod proxy proxy_http
 ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 
 CMD apache2ctl restart
-
-ADD proxy.conf /etc/apache2/mods-enabled/proxy.conf
-
 CMD apache2ctl -D FOREGROUND
 {% endhighlight %}
 
