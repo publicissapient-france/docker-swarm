@@ -357,6 +357,7 @@ $ curl localhost:8080
 Pour celà, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
 afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
+<a href="https://docs.docker.com/userguide/dockerlinks/#container-linking">Lien vers la documentation</a>
 
 <p>Fichier apache-config.conf</p>
 
@@ -423,6 +424,14 @@ $ docker run -d -p 8000:80 --name apache --link tomcat:tomcat xebia/apache
 $ curl localhost:8000
 {% endhighlight %}
 
+<p>Vous remarquerez que dans la configuration du apache nous redirigons le trafic vers http://tomcat/.
+Cela est possible car docker a ajouté une entrée dans le /etc/hosts de notre container apache, pour l'observer :</p>
+
+{% highlight bash %}
+docker exec -it apache cat /etc/hosts
+{% endhighlight %}
+
+
 <h2>Orchestration avec Fig</h2>
 
 <p>Fig est un outil permettant de définir l'ensemble des services qui composent une application au sein d'un même fichier de description,
@@ -458,6 +467,10 @@ tomcat:
 
 <p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application 
 avec les bons paramètres, notamment les liens entre vos différents containers</p>
+<p>Remarque: n'oubliez pas de détruire les containers déjà crées afin de libérer les ports de la machine hôte et les noms de containers</p>
+{% highlight bash %}
+docker rm -f $(docker ps -aq)
+{% endhighlight %}
 
 
 <h2>Utilisation du Docker Hub</h2>
