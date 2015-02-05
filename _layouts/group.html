@@ -160,7 +160,7 @@ $ docker run -m 5m -t -i apache2 --name="apache2BuildContainer" apache2ctl -f /e
 
 <p>Pouvoir accéder à un container via son adresse IP est bien, mais dans la majorité des cas, on aura uniquement accès à l'adresse IP de l'hôte.
 Pour contourner se problème, docker permet de faire du forwarding de port entre le container et l'hôte. 
-Rediriger le port 80 du container vers le port 8000 du la machine hôte. Pour tester, vous pouvez utiliser la commande :</p>
+Rediriger le port 8000 du container vers le port 80 du la machine hôte. Pour tester, vous pouvez utiliser la commande :</p>
 
 {% highlight bash %}
 $ wget localhost:8000
@@ -196,7 +196,7 @@ puis monter ce répertoire sur le container docker.</p>
 $ docker rm apache2BuildContainer
 $ mkdir www
 $ echo coucou > www/index.html
-$ docker run -t -i -p 8000:80 -v ~/test:/var/www/html --name="apache2BuildContainer" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+$ docker run -t -i -p 8000:80 -v ~/www:/var/www/html --name="apache2BuildContainer" apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
 {% endhighlight %}
 </div>
 
@@ -206,7 +206,7 @@ $ docker run -t -i -p 8000:80 -v ~/test:/var/www/html --name="apache2BuildContai
 Il existe un autre moyen de créer des containers docker grâce à un fichier appelé Dockerfile.</p>
 
 <p>La commande <em>docker build</em> lancée dans un répertoire cherche un fichier nommé <em>Dockerfile</em>,
-et à partir de celui-ci crée un image docker. Cette image peut en suite être utilisée pour lancer un container.</p>
+et à partir de celui-ci crée une image docker. Cette image peut ensuite être utilisée pour lancer un container.</p>
 
 <a href= "https://docs.docker.com/reference/builder">Lien vers la documentation</a>
 
@@ -336,7 +336,7 @@ CMD service tomcat7 start & touch foreground && tail -f foreground
 {% endhighlight %}
 </div>
 
-<p>Une fois le Dockerfile crée, vous pouvez construire votre image tomcat puis lancer un container :</p>
+<p>Une fois le Dockerfile créé, vous pouvez construire votre image tomcat puis lancer un container :</p>
 
 <div class = 'solution'>
 {% highlight bash %}
@@ -353,7 +353,7 @@ $ curl localhost:8080
 
 <h3>Lier le container apache avec le container Tomcat</h3>
 
-<p>Maintenant que nous avons créés nos containers, nous allons essayer de les lier entre eux.
+<p>Maintenant que nous avons créé nos containers, nous allons essayer de les lier entre eux.
 Pour celà, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
 afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
@@ -430,37 +430,17 @@ fig 1.0.1
 
 <h3>Utilisation de Fig</h3>
 
-<p>Clonez le code source de l'application</p>
-
-{% highlight bash %}
-$ git clone https://github.com/jlrigau/simplefig.git
-$ cd simplefig
-{% endhighlight %}
-
-<p>Vous devez alors créer un nouveau <em>Dockerfile</em></p>
-
-{% highlight bash %}
-FROM python:2.7
-ADD requirements.txt /code/requirements.txt
-WORKDIR /code
-RUN pip install -r requirements.txt
-ADD . /code
-{% endhighlight %}
-
-<p>Maintenant vous pouvez ajouter un fichier <em>fig.yml</em> pour stocker les propriétés d'éxécution de votre application :</p>
+<p>Créer un fichier <em>fig.yml</em> pour stocker les propriétés d'éxécution de votre application :</p>
 
 {% highlight bash %}
 web:
-  build: .
-  command: python app.py
+  image: xebia/apache
   ports:
-    - "5000:5000"
-  volumes:
-    - .:/code
+    - "8000:80"
   links:
-    - redis
-redis:
-  image: orchardup/redis
+    - tomcat:tomcat
+tomcat:
+  image: xebia/tomcat
 {% endhighlight %}
 
 <p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application 
