@@ -5,8 +5,7 @@
 #   export AWS_REGION=eu-west-1
 #
 variable "docker_count" {
-  description = "Number of instances to spawn"
-  default = "2"
+  default = "15"
 }
 variable "groups" {
   default = {
@@ -59,7 +58,7 @@ resource "aws_instance" "docker" {
     count = "${var.docker_count}"
     key_name = "docker-initiation"
     ami = "ami-f0b11187"
-    instance_type = "t2.micro"
+    instance_type = "t2.small"
     tags {
         Name = "docker-initiation#${count.index}"
         Group = "docker-initiation"
