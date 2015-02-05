@@ -374,8 +374,16 @@ afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.
 {% endhighlight %}
 
 
-<p>DockerFile pour l'image Apache</p>
+<p>Pour construire une nouvelle image avec un Apache configuré en proxy, vous devez enrichir le Dockerfile existant:
+  <ul>
+    <li>Activer les modules proxy et proxy_http (commande a2enmod)</li>
+    <li>Remplacer le fichier <strong><em>/etc/apache2/sites-enabled/000-default.conf</em></strong> par le fichier <strong><em>apache-config.conf</em></strong> fourni</li>
+</ul>
+<a href="https://docs.docker.com/reference/builder/#add">Lien vers la documentation</a>
+</p>
 
+
+<div class = 'solution'>
 {% highlight bash %}
 FROM ubuntu
 
@@ -397,14 +405,17 @@ ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 CMD apache2ctl restart
 CMD apache2ctl -D FOREGROUND
 {% endhighlight %}
+</div>
 
+<p>Construisez votre nouvelle image et lancer la avec l'option link.</p>
+<a href="https://docs.docker.com/userguide/dockerlinks/#container-linking">Lien vers la documentation</a>
 
-<p>Construisez votre nouvelle image et lancer la avec l'option link:</p>
-
+<div class="solution">
 {% highlight bash %}
 $ docker build -t="xebia/apache" .
 $ docker run -d -p 8000:80 --name apache --link tomcat:tomcat xebia/apache
 {% endhighlight %}
+</div>
 
 <p>Rendez-vous maintenant à l'adresse du serveur apache, et la page d'accueil de tomcat doit s'afficher.</p>
 
