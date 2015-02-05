@@ -92,8 +92,8 @@ $ docker ps -a
 <h3>Création d'une image docker</h3>
 
 <p>Nous allons maintenant essayer de créer une image docker basé sur ubuntu et contenant un serveur apache 
-(sans ce baser sur une image existante sur le dockerhub). Pour celà, vous allez lancer votre image docker avec un bash 
-(comme nous l'avons fait précédement). Pour information, la commande <em>docker ps</em> vous donne l'indentifiant unique du container, 
+(sans ce baser sur une image existante sur le dockerhub). Pour celà, vous allez lancer votre image docker avec un bash en mode interactif
+(option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'indentifiant unique du container,
 et la commande pour commiter un container est <em>docker commit</em></p>
 <p>Remarque : la commande pour lancer apache en foreground est :</p>
 
@@ -151,7 +151,7 @@ $ docker rm apache2BuildContainer
 <div class = 'solution'>
 {% highlight bash %}
 $ docker rm apache2BuildContainer
-$ docker run -m 5m -t -i apache2 --name="apache2BuildContainer" apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
+$ docker run -m 5m -t -i --name apache2BuildContainer apache2 apache2ctl -f /etc/apache2/apache2.conf -e info -DFOREGROUND
 {% endhighlight %}
 </div>
 
