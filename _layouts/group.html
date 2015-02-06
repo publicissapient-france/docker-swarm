@@ -91,9 +91,9 @@ $ docker ps -a
 
 <h3>Création d'une image docker</h3>
 
-<p>Nous allons maintenant essayer de créer une image docker basé sur ubuntu et contenant un serveur apache
+<p>Nous allons maintenant essayer de créer une image docker basée sur Ubuntu et contenant un serveur apache
 (sans ce baser sur une image existante sur le dockerhub). Pour cela, vous allez lancer votre image docker avec un bash en mode interactif
-(option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'indentifiant unique du container,
+(option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'identifiant unique du container,
 et la commande pour commiter un container est <em>docker commit</em></p>
 <p>Remarque : la commande pour lancer apache en foreground est :</p>
 
@@ -125,7 +125,7 @@ $ docker attach $(docker ps -lq)
 <h3>Récupérer les informations d'un container docker</h3>
 
 <p>Maintenant que notre container docker est démarré, nous aimerions bien récupérer certaines informations comme par exemple son adresse IP.
-Pour cela, docker possède la commande <em>docker inspect</em>. A l'aide de cet commande, essayez de récuperer l'adresse IP du container
+Pour cela, docker possède la commande <em>docker inspect</em>. À l'aide de cette commande, essayez de récuperer l'adresse IP du container
 et de récuperer la page d'accueil avec une commande type curl ou wget</p>
 
 <div class = 'solution'>
@@ -146,7 +146,7 @@ $ docker rm apache2BuildContainer
 
 <h3>Gérer la mémoire et le CPU</h3>
 
-<p>Il est possible de spécifier à notre container la quantité de mémoire que nous allons lui allouer, ainsi que la portion du cpu qu'il est autorisé à utiliser. Essayez de limiter la mémoire alloué à notre container par exemple à 5 Mo.</p>
+<p>Il est possible de spécifier à notre container la quantité de mémoire que nous allons lui allouer, ainsi que la portion du cpu qu'il est autorisé à utiliser. Essayez de limiter la mémoire allouée à notre container par exemple à 5 Mo.</p>
 
 <div class = 'solution'>
 {% highlight bash %}
@@ -251,7 +251,7 @@ RUN apt-get update && apt-get -y install apache2 && apt-get clean
 {% endhighlight %}
 </div>
 
-<p>On peut également spécifier dans le Dockerfile des variables d'environnement qui pourront être réutilisées par le suite.
+<p>On peut également spécifier dans le Dockerfile des variables d'environnement qui pourront être réutilisées par la suite.
 Définissez les variables d'environnement <em>APACHE_RUN_USER</em> et <em>APACHE_RUN_GROUP</em> avec la valeur <em>www-data</em>
 afin de lancer par la suite notre serveur apache avec des droits restreints.
 (Le fait d'avoir un processus isolé dans un container ne veut absolument pas dire que l'on peut tout lancer en root.)</p>
@@ -314,12 +314,12 @@ $ docker run -d -p 8000:80 --name="apache2" xebia/apache
 
 <p>Dans cette partie nous allons créer deux container avec pour objectif d'établir une connexion entre ces-derniers.
 Nous allons créer deux containers : l'un contenant un serveur apache, et l'autre contenant un serveur Tomcat.
-Une fois ces deux serveurs crées, nous verrons comment les faire communiquer entre eux.
-Vous pourrez utiliser l'image créé dans la partie précédente pour démarrer un conteneur apache</p>
+Une fois ces deux serveurs créés, nous verrons comment les faire communiquer entre eux.
+Vous pourrez utiliser l'image créée dans la partie précédente pour démarrer un conteneur apache</p>
 
 <h3>Création de notre container Tomcat</h3>
 
-<p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur Ubuntu et contenant un serveur Tomcat.
+<p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur ubuntu et contenant un serveur Tomcat.
 Pensez à exposer le port 8080 et à ne pas lancer Tomcat en arrière plan.</p>
 
 <p>Commencez par créer un nouveau Dockerfile pour construire l'image tomcat</p>
@@ -373,7 +373,7 @@ afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.
 {% endhighlight %}
 
 
-<p>Pour construire une nouvelle image avec un Apache configuré en proxy, vous devez enrichir le Dockerfile existant:
+<p>Pour construire une nouvelle image avec un Apache configuré en proxy, vous devez enrichir le Dockerfile existant :
   <ul>
     <li>Activer les modules proxy et proxy_http (commande a2enmod)</li>
     <li>Remplacer le fichier <strong><em>/etc/apache2/sites-enabled/000-default.conf</em></strong> par le fichier <strong><em>apache-config.conf</em></strong> fourni</li>
@@ -422,7 +422,7 @@ $ docker run -d -p 8000:80 --name apache --link tomcat:tomcat xebia/apache
 $ curl localhost:8000
 {% endhighlight %}
 
-<p>Vous remarquerez que dans la configuration du apache nous redirigons le trafic vers http://tomcat/.
+<p>Vous remarquerez que dans la configuration du apache nous redirigeons le trafic vers http://tomcat/.
 Cela est possible car docker a ajouté une entrée dans le /etc/hosts de notre container apache, pour l'observer :</p>
 
 {% highlight bash %}
@@ -526,7 +526,7 @@ $ cat ~/.dockercfg
 <p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository.
   Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
 
-<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>ubuntu</em> en mode intéractif</p>
+<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>ubuntu</em> en mode interactif</p>
 
 <div class = 'solution'>
   {% highlight bash %}
@@ -618,7 +618,7 @@ Pushing tag for rev [45994cc5ab57] on {https://cdn-registry-1.docker.io/v1/repos
     {% endhighlight %}
 </div>
 
-<p>A présent, relancez votre image depuis le Docker Hub</p>
+<p>À présent, relancez votre image depuis le Docker Hub</p>
 
 {% highlight bash %}
 $ docker run -it {{page.groupId}}/cmatrix cmatrix
