@@ -426,7 +426,7 @@ $ curl localhost:8000
 Cela est possible car docker a ajouté une entrée dans le /etc/hosts de notre container apache, pour l'observer :</p>
 
 {% highlight bash %}
-docker exec -it apache cat /etc/hosts
+docker exec apache cat /etc/hosts
 {% endhighlight %}
 
 
