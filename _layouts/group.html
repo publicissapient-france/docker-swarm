@@ -4,13 +4,13 @@ css: ../stylesheets/stylesheet.css
 js: ../javascripts/main.js
 ---
 
-<p>Dans ce workshop, vous aurez à votre disposition une instance amazon. 
+<p>Dans ce workshop, vous aurez à votre disposition une instance amazon.
 Vous pouvez également utiliser directement votre machine, ou si vous le préférez, une machine virtuelle.</p>
 
 <p>Toutes les machines utilisent la même clef ssh, et ont le même login <strong><em>ubuntu</em></strong>.</p>
 
 <p>Pour vous connecter à votre machine, placez le fichier <a href="../data/docker-janvier.pem">docker-janvier.pem</a>
-ou le fichier <a href="../data/docker-janvier.ppk">docker-janvier.ppk</a> pour les utilisateurs Windows, 
+ou le fichier <a href="../data/docker-janvier.ppk">docker-janvier.ppk</a> pour les utilisateurs Windows,
 dans votre répertoire courant (la clef sera révoquée après le workshop). N'oubliez pas de changer les permissions sur le fichier :</p>
 
 {% highlight bash %}
@@ -31,7 +31,7 @@ $ ssh -i docker-janvier.pem ubuntu@docker-{{page.groupId}}.aws.xebiatechevent.in
 
 <h3>Les images docker</h3>
 
-<p>Pour commencer à jouer avec docker, nous allons commencer par chercher une image de base. 
+<p>Pour commencer à jouer avec docker, nous allons commencer par chercher une image de base.
 Les images de base correspondent plus ou moins à des distributions linux sans kernel.
 Pour voir la liste des images disponibles, tapez la commande :</p>
 
@@ -39,15 +39,15 @@ Pour voir la liste des images disponibles, tapez la commande :</p>
 $ docker images
 {% endhighlight %}
 
-<p>Par défaut, nous vous avons déjà téléchargé une image de type ubuntu, c'est celle-ci que vous voyez. 
-Nous allons maintenant essayer de récupérer une image de type <em>busybox</em>. C'est une distribution linux minimaliste. 
+<p>Par défaut, nous vous avons déjà téléchargé une image de type ubuntu, c'est celle-ci que vous voyez.
+Nous allons maintenant essayer de récupérer une image de type <em>busybox</em>. C'est une distribution linux minimaliste.
 Pour commencer, nous allons chercher cette image sur le hub docker :</p>
 
 {% highlight bash %}
 $ docker search busybox
 {% endhighlight %}
 
-<p>Nous remarquons que nous avons plusieurs images de type <em>busybox</em> à notre disposition. 
+<p>Nous remarquons que nous avons plusieurs images de type <em>busybox</em> à notre disposition.
 Nous allons maintenant récupérer l'image officielle :</p>
 
 {% highlight bash %}
@@ -64,7 +64,7 @@ $ docker rmi busybox
 
 <h3>Lancer un container docker</h3>
 
-<p>Maintenant que nous savons récupérer des images docker, nous allons commencer à jouer avec. 
+<p>Maintenant que nous savons récupérer des images docker, nous allons commencer à jouer avec.
 Pour commencer, nous allons lancer un container ubuntu en lui spécifiant une commande en paramètre.</p>
 
 {% highlight bash %}
@@ -91,7 +91,7 @@ $ docker ps -a
 
 <h3>Création d'une image docker</h3>
 
-<p>Nous allons maintenant essayer de créer une image docker basé sur ubuntu et contenant un serveur apache 
+<p>Nous allons maintenant essayer de créer une image docker basé sur ubuntu et contenant un serveur apache
 (sans ce baser sur une image existante sur le dockerhub). Pour celà, vous allez lancer votre image docker avec un bash en mode interactif
 (option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'indentifiant unique du container,
 et la commande pour commiter un container est <em>docker commit</em></p>
@@ -159,7 +159,7 @@ $ docker run -m 5m -t -i --name apache2BuildContainer apache2 apache2ctl -f /etc
 <h3>Les redirections de port</h3>
 
 <p>Pouvoir accéder à un container via son adresse IP est bien, mais dans la majorité des cas, on aura uniquement accès à l'adresse IP de l'hôte.
-Pour contourner se problème, docker permet de faire du forwarding de port entre le container et l'hôte. 
+Pour contourner se problème, docker permet de faire du forwarding de port entre le container et l'hôte.
 Rediriger le port 8000 du container vers le port 80 du la machine hôte. Pour tester, vous pouvez utiliser la commande :</p>
 
 {% highlight bash %}
@@ -186,7 +186,7 @@ $ sudo iptables -t nat -L
 <p>Un container docker est par définition immutable. Celà signifie que si on souhaite en utiliser un pour héberger un site web,
 il faudrait créer un nouveau container dès qu'une modification du site aurait lieu. (Ceci n'est pas forcément une mauvaise solution).</p>
 
-<p>On va donc créer un répertoire sur la machine hôte pour stocker notre site web (par exemple en créant un fichier index.html bidon), 
+<p>On va donc créer un répertoire sur la machine hôte pour stocker notre site web (par exemple en créant un fichier index.html bidon),
 puis monter ce répertoire sur le container docker.</p>
 
 <a href="https://docs.docker.com/userguide/dockervolumes/">Lien vers la documentation</a>
@@ -202,7 +202,7 @@ $ docker run -t -i -p 8000:80 -v ~/www:/var/www/html --name="apache2BuildContain
 
 <h2>Création de votre Dockerfile</h2>
 
-<p>Dans la première partie, nous avons vu comment créer un container docker à partir des commandes de base. 
+<p>Dans la première partie, nous avons vu comment créer un container docker à partir des commandes de base.
 Il existe un autre moyen de créer des containers docker grâce à un fichier appelé Dockerfile.</p>
 
 <p>La commande <em>docker build</em> lancée dans un répertoire cherche un fichier nommé <em>Dockerfile</em>,
@@ -213,7 +213,7 @@ et à partir de celui-ci crée une image docker. Cette image peut ensuite être 
 <h3>Création de notre container apache</h3>
 
 <p>En nous basant sur ce que nous avons vu dans la première partie, nous allons créer un container contenant un serveur apache.
-Pour commencer, nous allons lui spécifier à partir de quelle image de base nous souhaitons travailler. 
+Pour commencer, nous allons lui spécifier à partir de quelle image de base nous souhaitons travailler.
 Dans notre cas, il s'agit toujours d'une image ubuntu</p>
 
 <div class = 'solution'>
@@ -228,7 +228,7 @@ FROM ubuntu
 $ docker build -t="xebia/apache" .
 {% endhighlight %}
 
-<p>Vous pouvez spécifier si vous le souhaiter le nom de la personne qui maintient cette image. 
+<p>Vous pouvez spécifier si vous le souhaiter le nom de la personne qui maintient cette image.
 Cette information est surtout utile si vous souhaitez sauver votre image sur le dockerhub.</p>
 
 <div class = 'solution'>
@@ -253,7 +253,7 @@ RUN apt-get update && apt-get -y install apache2 && apt-get clean
 
 <p>On peut également spécifier dans le Dockerfile des variables d'environnement qui pourront être réutilisées par le suite.
 Définissez les variables d'environnement <em>APACHE_RUN_USER</em> et <em>APACHE_RUN_GROUP</em> avec la valeur <em>www-data</em>
-afin de lancer par la suite notre serveur apache avec des droits restreints. 
+afin de lancer par la suite notre serveur apache avec des droits restreints.
 (Le fait d'avoir un processus isolé dans un container ne veut absolument pas dire que l'on peut tout lancer en root.)</p>
 
 <div class = 'solution'>
@@ -463,7 +463,7 @@ tomcat:
 
 <a href= "http://www.fig.sh/yml.html">Lien vers la documentation</a>
 
-<p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application 
+<p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application
 avec les bons paramètres, notamment les liens entre vos différents containers</p>
 <p>Remarque: n'oubliez pas de détruire les containers déjà crées afin de libérer les ports de la machine hôte et les noms de containers</p>
 {% highlight bash %}
