@@ -39,7 +39,7 @@ Pour voir la liste des images disponibles, tapez la commande :</p>
 $ docker images
 {% endhighlight %}
 
-<p>Par défaut, nous vous avons déjà téléchargé une image de type ubuntu, c'est celle-ci que vous voyez.
+<p>Par défaut, nous vous avons déjà téléchargé une image de type Ubuntu, c'est celle-ci que vous voyez.
 Nous allons maintenant essayer de récupérer une image de type <em>busybox</em>. C'est une distribution linux minimaliste.
 Pour commencer, nous allons chercher cette image sur le hub docker :</p>
 
@@ -65,13 +65,13 @@ $ docker rmi busybox
 <h3>Lancer un container docker</h3>
 
 <p>Maintenant que nous savons récupérer des images docker, nous allons commencer à jouer avec.
-Pour commencer, nous allons lancer un container ubuntu en lui spécifiant une commande en paramètre.</p>
+Pour commencer, nous allons lancer un container Ubuntu en lui spécifiant une commande en paramètre.</p>
 
 {% highlight bash %}
 $ docker run ubuntu uname -r
 {% endhighlight %}
 
-<p>Concrètement, nous venons de lancer un container docker basé sur une image de type ubuntu,
+<p>Concrètement, nous venons de lancer un container docker basé sur une image de type Ubuntu,
 et nous lui avons demandé de lancer la commande <em>uname -r</em> (commande qui permet de connaître la version du noyau linux,
 et qui nous permet facilement de vérifier que les containers partagent le même kernel que leur host.).
 Une fois cette commande achevée, le container s'est éteint de lui même. C'est la une propriété intéressante des containers docker :
@@ -214,7 +214,7 @@ et à partir de celui-ci crée une image docker. Cette image peut ensuite être 
 
 <p>En nous basant sur ce que nous avons vu dans la première partie, nous allons créer un container contenant un serveur apache.
 Pour commencer, nous allons lui spécifier à partir de quelle image de base nous souhaitons travailler.
-Dans notre cas, il s'agit toujours d'une image ubuntu</p>
+Dans notre cas, il s'agit toujours d'une image Ubuntu</p>
 
 <div class = 'solution'>
 {% highlight bash %}
@@ -319,7 +319,7 @@ Vous pourrez utiliser l'image créée dans la partie précédente pour démarrer
 
 <h3>Création de notre container Tomcat</h3>
 
-<p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur ubuntu et contenant un serveur Tomcat.
+<p>Vous allez maintenant procéder de manière similaire pour créer une image basée sur Ubuntu et contenant un serveur Tomcat.
 Pensez à exposer le port 8080 et à ne pas lancer Tomcat en arrière plan.</p>
 
 <p>Commencez par créer un nouveau Dockerfile pour construire l'image tomcat</p>
@@ -526,7 +526,7 @@ $ cat ~/.dockercfg
 <p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository.
   Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
 
-<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>ubuntu</em> en mode interactif</p>
+<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>Ubuntu</em> en mode interactif</p>
 
 <div class = 'solution'>
   {% highlight bash %}
