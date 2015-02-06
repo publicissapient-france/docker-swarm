@@ -4,13 +4,13 @@ css: ../stylesheets/stylesheet.css
 js: ../javascripts/main.js
 ---
 
-<p>Dans ce workshop, vous aurez à votre disposition une instance amazon. 
+<p>Dans ce workshop, vous aurez à votre disposition une instance amazon.
 Vous pouvez également utiliser directement votre machine, ou si vous le préférez, une machine virtuelle.</p>
 
 <p>Toutes les machines utilisent la même clef ssh, et ont le même login <strong><em>ubuntu</em></strong>.</p>
 
 <p>Pour vous connecter à votre machine, placez le fichier <a href="../data/docker-janvier.pem">docker-janvier.pem</a>
-ou le fichier <a href="../data/docker-janvier.ppk">docker-janvier.ppk</a> pour les utilisateurs Windows, 
+ou le fichier <a href="../data/docker-janvier.ppk">docker-janvier.ppk</a> pour les utilisateurs Windows,
 dans votre répertoire courant (la clef sera révoquée après le workshop). N'oubliez pas de changer les permissions sur le fichier :</p>
 
 {% highlight bash %}
@@ -31,7 +31,7 @@ $ ssh -i docker-janvier.pem ubuntu@docker-{{page.groupId}}.aws.xebiatechevent.in
 
 <h3>Les images docker</h3>
 
-<p>Pour commencer à jouer avec docker, nous allons commencer par chercher une image de base. 
+<p>Pour commencer à jouer avec docker, nous allons commencer par chercher une image de base.
 Les images de base correspondent plus ou moins à des distributions linux sans kernel.
 Pour voir la liste des images disponibles, tapez la commande :</p>
 
@@ -39,15 +39,15 @@ Pour voir la liste des images disponibles, tapez la commande :</p>
 $ docker images
 {% endhighlight %}
 
-<p>Par défaut, nous vous avons déjà téléchargé une image de type ubuntu, c'est celle-ci que vous voyez. 
-Nous allons maintenant essayer de récupérer une image de type <em>busybox</em>. C'est une distribution linux minimaliste. 
+<p>Par défaut, nous vous avons déjà téléchargé une image de type Ubuntu, c'est celle-ci que vous voyez.
+Nous allons maintenant essayer de récupérer une image de type <em>busybox</em>. C'est une distribution linux minimaliste.
 Pour commencer, nous allons chercher cette image sur le hub docker :</p>
 
 {% highlight bash %}
 $ docker search busybox
 {% endhighlight %}
 
-<p>Nous remarquons que nous avons plusieurs images de type <em>busybox</em> à notre disposition. 
+<p>Nous remarquons que nous avons plusieurs images de type <em>busybox</em> à notre disposition.
 Nous allons maintenant récupérer l'image officielle :</p>
 
 {% highlight bash %}
@@ -56,7 +56,7 @@ $ docker pull busybox
 
 <p>Maintenant, réafficher la liste des images pour constater que l'image busybox est maintenant disponible en local sur la machine.</p>
 
-<p>Il est également possible de supprimer une image. Pour celà, lancer simplement la commande :</p>
+<p>Il est également possible de supprimer une image. Pour cela, lancer simplement la commande :</p>
 
 {% highlight bash %}
 $ docker rmi busybox
@@ -64,14 +64,14 @@ $ docker rmi busybox
 
 <h3>Lancer un container docker</h3>
 
-<p>Maintenant que nous savons récupérer des images docker, nous allons commencer à jouer avec. 
-Pour commencer, nous allons lancer un container ubuntu en lui spécifiant une commande en paramètre.</p>
+<p>Maintenant que nous savons récupérer des images docker, nous allons commencer à jouer avec.
+Pour commencer, nous allons lancer un container Ubuntu en lui spécifiant une commande en paramètre.</p>
 
 {% highlight bash %}
 $ docker run ubuntu uname -r
 {% endhighlight %}
 
-<p>Concrètement, nous venons de lancer un container docker basé sur une image de type ubuntu,
+<p>Concrètement, nous venons de lancer un container docker basé sur une image de type Ubuntu,
 et nous lui avons demandé de lancer la commande <em>uname -r</em> (commande qui permet de connaître la version du noyau linux,
 et qui nous permet facilement de vérifier que les containers partagent le même kernel que leur host.).
 Une fois cette commande achevée, le container s'est éteint de lui même. C'est la une propriété intéressante des containers docker :
@@ -91,9 +91,9 @@ $ docker ps -a
 
 <h3>Création d'une image docker</h3>
 
-<p>Nous allons maintenant essayer de créer une image docker basé sur ubuntu et contenant un serveur apache 
-(sans ce baser sur une image existante sur le dockerhub). Pour celà, vous allez lancer votre image docker avec un bash en mode interactif
-(option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'indentifiant unique du container,
+<p>Nous allons maintenant essayer de créer une image docker basée sur Ubuntu et contenant un serveur apache
+(sans ce baser sur une image existante sur le dockerhub). Pour cela, vous allez lancer votre image docker avec un bash en mode interactif
+(option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'identifiant unique du container,
 et la commande pour commiter un container est <em>docker commit</em></p>
 <p>Remarque : la commande pour lancer apache en foreground est :</p>
 
@@ -125,7 +125,7 @@ $ docker attach $(docker ps -lq)
 <h3>Récupérer les informations d'un container docker</h3>
 
 <p>Maintenant que notre container docker est démarré, nous aimerions bien récupérer certaines informations comme par exemple son adresse IP.
-Pour celà, docker possède la commande <em>docker inspect</em>. A l'aide de cet commande, essayez de récuperer l'adresse IP du container
+Pour cela, docker possède la commande <em>docker inspect</em>. À l'aide de cette commande, essayez de récuperer l'adresse IP du container
 et de récuperer la page d'accueil avec une commande type curl ou wget</p>
 
 <div class = 'solution'>
@@ -146,7 +146,7 @@ $ docker rm apache2BuildContainer
 
 <h3>Gérer la mémoire et le CPU</h3>
 
-<p>Il est possible de spécifier à notre container la quantité de mémoire que nous allons lui allouer, ainsi que la portion du cpu qu'il est autorisé à utiliser. Essayez de limiter la mémoire alloué à notre container par exemple à 5 Mo.</p>
+<p>Il est possible de spécifier à notre container la quantité de mémoire que nous allons lui allouer, ainsi que la portion du cpu qu'il est autorisé à utiliser. Essayez de limiter la mémoire allouée à notre container par exemple à 5 Mo.</p>
 
 <div class = 'solution'>
 {% highlight bash %}
@@ -159,7 +159,7 @@ $ docker run -m 5m -t -i --name apache2BuildContainer apache2 apache2ctl -f /etc
 <h3>Les redirections de port</h3>
 
 <p>Pouvoir accéder à un container via son adresse IP est bien, mais dans la majorité des cas, on aura uniquement accès à l'adresse IP de l'hôte.
-Pour contourner se problème, docker permet de faire du forwarding de port entre le container et l'hôte. 
+Pour contourner se problème, docker permet de faire du forwarding de port entre le container et l'hôte.
 Rediriger le port 8000 du container vers le port 80 du la machine hôte. Pour tester, vous pouvez utiliser la commande :</p>
 
 {% highlight bash %}
@@ -183,10 +183,10 @@ $ sudo iptables -t nat -L
 
 <h3>Les volumes</h3>
 
-<p>Un container docker est par définition immutable. Celà signifie que si on souhaite en utiliser un pour héberger un site web,
+<p>Un container docker est par définition immutable. Cela signifie que si on souhaite en utiliser un pour héberger un site web,
 il faudrait créer un nouveau container dès qu'une modification du site aurait lieu. (Ceci n'est pas forcément une mauvaise solution).</p>
 
-<p>On va donc créer un répertoire sur la machine hôte pour stocker notre site web (par exemple en créant un fichier index.html bidon), 
+<p>On va donc créer un répertoire sur la machine hôte pour stocker notre site web (par exemple en créant un fichier index.html bidon),
 puis monter ce répertoire sur le container docker.</p>
 
 <a href="https://docs.docker.com/userguide/dockervolumes/">Lien vers la documentation</a>
@@ -202,7 +202,7 @@ $ docker run -t -i -p 8000:80 -v ~/www:/var/www/html --name="apache2BuildContain
 
 <h2>Création de votre Dockerfile</h2>
 
-<p>Dans la première partie, nous avons vu comment créer un container docker à partir des commandes de base. 
+<p>Dans la première partie, nous avons vu comment créer un container docker à partir des commandes de base.
 Il existe un autre moyen de créer des containers docker grâce à un fichier appelé Dockerfile.</p>
 
 <p>La commande <em>docker build</em> lancée dans un répertoire cherche un fichier nommé <em>Dockerfile</em>,
@@ -213,8 +213,8 @@ et à partir de celui-ci crée une image docker. Cette image peut ensuite être 
 <h3>Création de notre container apache</h3>
 
 <p>En nous basant sur ce que nous avons vu dans la première partie, nous allons créer un container contenant un serveur apache.
-Pour commencer, nous allons lui spécifier à partir de quelle image de base nous souhaitons travailler. 
-Dans notre cas, il s'agit toujours d'une image ubuntu</p>
+Pour commencer, nous allons lui spécifier à partir de quelle image de base nous souhaitons travailler.
+Dans notre cas, il s'agit toujours d'une image Ubuntu</p>
 
 <div class = 'solution'>
 {% highlight bash %}
@@ -222,13 +222,13 @@ FROM ubuntu
 {% endhighlight %}
 </div>
 
-<p>Une fois celà fait, vous pouvez lancer la commande suivante pour créer votre image. L'option -t permet de donner un nom à cet image</p>
+<p>Une fois cela fait, vous pouvez lancer la commande suivante pour créer votre image. L'option -t permet de donner un nom à cet image</p>
 
 {% highlight bash %}
 $ docker build -t="xebia/apache" .
 {% endhighlight %}
 
-<p>Vous pouvez spécifier si vous le souhaiter le nom de la personne qui maintient cette image. 
+<p>Vous pouvez spécifier si vous le souhaiter le nom de la personne qui maintient cette image.
 Cette information est surtout utile si vous souhaitez sauver votre image sur le dockerhub.</p>
 
 <div class = 'solution'>
@@ -251,9 +251,9 @@ RUN apt-get update && apt-get -y install apache2 && apt-get clean
 {% endhighlight %}
 </div>
 
-<p>On peut également spécifier dans le Dockerfile des variables d'environnement qui pourront être réutilisées par le suite.
+<p>On peut également spécifier dans le Dockerfile des variables d'environnement qui pourront être réutilisées par la suite.
 Définissez les variables d'environnement <em>APACHE_RUN_USER</em> et <em>APACHE_RUN_GROUP</em> avec la valeur <em>www-data</em>
-afin de lancer par la suite notre serveur apache avec des droits restreints. 
+afin de lancer par la suite notre serveur apache avec des droits restreints.
 (Le fait d'avoir un processus isolé dans un container ne veut absolument pas dire que l'on peut tout lancer en root.)</p>
 
 <div class = 'solution'>
@@ -314,8 +314,8 @@ $ docker run -d -p 8000:80 --name="apache2" xebia/apache
 
 <p>Dans cette partie nous allons créer deux container avec pour objectif d'établir une connexion entre ces-derniers.
 Nous allons créer deux containers : l'un contenant un serveur apache, et l'autre contenant un serveur Tomcat.
-Une fois ces deux serveurs crées, nous verrons comment les faire communiquer entre eux.
-Vous pourrez utiliser l'image créé dans la partie précédente pour démarrer un conteneur apache</p>
+Une fois ces deux serveurs créés, nous verrons comment les faire communiquer entre eux.
+Vous pourrez utiliser l'image créée dans la partie précédente pour démarrer un conteneur apache</p>
 
 <h3>Création de notre container Tomcat</h3>
 
@@ -354,7 +354,7 @@ $ curl localhost:8080
 <h3>Lier le container apache avec le container Tomcat</h3>
 
 <p>Maintenant que nous avons créé nos containers, nous allons essayer de les lier entre eux.
-Pour celà, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
+Pour cela, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
 afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
 <p>Fichier apache-config.conf</p>
@@ -373,7 +373,7 @@ afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.
 {% endhighlight %}
 
 
-<p>Pour construire une nouvelle image avec un Apache configuré en proxy, vous devez enrichir le Dockerfile existant:
+<p>Pour construire une nouvelle image avec un Apache configuré en proxy, vous devez enrichir le Dockerfile existant :
   <ul>
     <li>Activer les modules proxy et proxy_http (commande a2enmod)</li>
     <li>Remplacer le fichier <strong><em>/etc/apache2/sites-enabled/000-default.conf</em></strong> par le fichier <strong><em>apache-config.conf</em></strong> fourni</li>
@@ -422,11 +422,11 @@ $ docker run -d -p 8000:80 --name apache --link tomcat:tomcat xebia/apache
 $ curl localhost:8000
 {% endhighlight %}
 
-<p>Vous remarquerez que dans la configuration du apache nous redirigons le trafic vers http://tomcat/.
+<p>Vous remarquerez que dans la configuration du apache nous redirigeons le trafic vers http://tomcat/.
 Cela est possible car docker a ajouté une entrée dans le /etc/hosts de notre container apache, pour l'observer :</p>
 
 {% highlight bash %}
-docker exec -it apache cat /etc/hosts
+docker exec apache cat /etc/hosts
 {% endhighlight %}
 
 
@@ -463,7 +463,7 @@ tomcat:
 
 <a href= "http://www.fig.sh/yml.html">Lien vers la documentation</a>
 
-<p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application 
+<p>Il ne vous reste plus qu'à lancer la commande <em>fig up</em> et regarder fig construire puis lancer votre application
 avec les bons paramètres, notamment les liens entre vos différents containers</p>
 <p>Remarque: n'oubliez pas de détruire les containers déjà crées afin de libérer les ports de la machine hôte et les noms de containers</p>
 {% highlight bash %}
@@ -526,7 +526,7 @@ $ cat ~/.dockercfg
 <p>En cliquant sur <em>Repositories</em>, vous pouvez voir votre nouveau repository.
   Il vous est dès à présent possible de pousser des images sur ce repository à partir de la ligne de commande <em>docker</em>.</p>
 
-<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>ubuntu</em> en mode intéractif</p>
+<p>Pour commencer, lancer un terminal à l'intérieur d'un container <em>Ubuntu</em> en mode interactif</p>
 
 <div class = 'solution'>
   {% highlight bash %}
@@ -618,7 +618,7 @@ Pushing tag for rev [45994cc5ab57] on {https://cdn-registry-1.docker.io/v1/repos
     {% endhighlight %}
 </div>
 
-<p>A présent, relancez votre image depuis le Docker Hub</p>
+<p>À présent, relancez votre image depuis le Docker Hub</p>
 
 {% highlight bash %}
 $ docker run -it {{page.groupId}}/cmatrix cmatrix
