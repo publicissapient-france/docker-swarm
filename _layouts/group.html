@@ -56,7 +56,7 @@ $ docker pull busybox
 
 <p>Maintenant, réafficher la liste des images pour constater que l'image busybox est maintenant disponible en local sur la machine.</p>
 
-<p>Il est également possible de supprimer une image. Pour celà, lancer simplement la commande :</p>
+<p>Il est également possible de supprimer une image. Pour cela, lancer simplement la commande :</p>
 
 {% highlight bash %}
 $ docker rmi busybox
@@ -92,7 +92,7 @@ $ docker ps -a
 <h3>Création d'une image docker</h3>
 
 <p>Nous allons maintenant essayer de créer une image docker basé sur ubuntu et contenant un serveur apache
-(sans ce baser sur une image existante sur le dockerhub). Pour celà, vous allez lancer votre image docker avec un bash en mode interactif
+(sans ce baser sur une image existante sur le dockerhub). Pour cela, vous allez lancer votre image docker avec un bash en mode interactif
 (option <em>-it</em>). Pour information, la commande <em>docker ps</em> vous donne l'indentifiant unique du container,
 et la commande pour commiter un container est <em>docker commit</em></p>
 <p>Remarque : la commande pour lancer apache en foreground est :</p>
@@ -125,7 +125,7 @@ $ docker attach $(docker ps -lq)
 <h3>Récupérer les informations d'un container docker</h3>
 
 <p>Maintenant que notre container docker est démarré, nous aimerions bien récupérer certaines informations comme par exemple son adresse IP.
-Pour celà, docker possède la commande <em>docker inspect</em>. A l'aide de cet commande, essayez de récuperer l'adresse IP du container
+Pour cela, docker possède la commande <em>docker inspect</em>. A l'aide de cet commande, essayez de récuperer l'adresse IP du container
 et de récuperer la page d'accueil avec une commande type curl ou wget</p>
 
 <div class = 'solution'>
@@ -183,7 +183,7 @@ $ sudo iptables -t nat -L
 
 <h3>Les volumes</h3>
 
-<p>Un container docker est par définition immutable. Celà signifie que si on souhaite en utiliser un pour héberger un site web,
+<p>Un container docker est par définition immutable. Cela signifie que si on souhaite en utiliser un pour héberger un site web,
 il faudrait créer un nouveau container dès qu'une modification du site aurait lieu. (Ceci n'est pas forcément une mauvaise solution).</p>
 
 <p>On va donc créer un répertoire sur la machine hôte pour stocker notre site web (par exemple en créant un fichier index.html bidon),
@@ -222,7 +222,7 @@ FROM ubuntu
 {% endhighlight %}
 </div>
 
-<p>Une fois celà fait, vous pouvez lancer la commande suivante pour créer votre image. L'option -t permet de donner un nom à cet image</p>
+<p>Une fois cela fait, vous pouvez lancer la commande suivante pour créer votre image. L'option -t permet de donner un nom à cet image</p>
 
 {% highlight bash %}
 $ docker build -t="xebia/apache" .
@@ -354,7 +354,7 @@ $ curl localhost:8080
 <h3>Lier le container apache avec le container Tomcat</h3>
 
 <p>Maintenant que nous avons créé nos containers, nous allons essayer de les lier entre eux.
-Pour celà, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
+Pour cela, nous allons commencer par modifier notre image apache afin de la transformer en proxy,
 afin de rediriger les requêtes à destination du serveur apache vers le Tomcat.</p>
 
 <p>Fichier apache-config.conf</p>
