@@ -1,3 +1,4 @@
-kibana-workshop
+Docker Swarm Workshop
 ===============
-cf. <a href="http://xebia-france.github.io/workshop-kibana/">jekyll site</a>
+
+cf. <a href="http://xebia-france.github.io/docker-swarm/">jekyll site</a>
