@@ -4,7 +4,7 @@ resource "aws_vpc" "platform_vpc" {
     instance_tenancy = "default"
 
     tags {
-        Name = "vpc_${var.aws_project_name}"
+        Name = "vpc_${var.aws_platform_name}"
     }
 }
 
@@ -13,7 +13,7 @@ resource "aws_internet_gateway" "gw" {
     vpc_id = "${aws_vpc.platform_vpc.id}"
 
     tags {
-      Name = "igw_${var.aws_project_name}"
+      Name = "igw_${var.aws_platform_name}"
     }
 }
 
@@ -23,7 +23,7 @@ resource "aws_vpc_dhcp_options" "domain_setup" {
     domain_name_servers = ["AmazonProvidedDNS"]
 
     tags {
-      Name = "dhcp_setup_domain_${var.aws_project_name}"
+      Name = "dhcp_setup_domain_${var.aws_platform_name}"
     }
 }
 
@@ -39,7 +39,7 @@ resource "aws_subnet" "aws_az1" {
     cidr_block = "${var.aws_vpc_subnet_block.az1}"
 
     tags {
-        Name = "subnet_az1_${var.aws_project_name}"
+        Name = "subnet_az1_${var.aws_platform_name}"
     }
 }
 
@@ -49,17 +49,7 @@ resource "aws_subnet" "aws_az2" {
     cidr_block = "${var.aws_vpc_subnet_block.az2}"
 
     tags {
-        Name = "subnet_az2_${var.aws_project_name}"
-    }
-}
-
-resource "aws_subnet" "aws_az3" {
-    vpc_id = "${aws_vpc.platform_vpc.id}"
-    availability_zone = "${var.aws_region_azs.az3}"
-    cidr_block = "${var.aws_vpc_subnet_block.az3}"
-
-    tags {
-        Name = "subnet_az3_${var.aws_project_name}"
+        Name = "subnet_az2_${var.aws_platform_name}"
     }
 }
 
@@ -85,7 +75,7 @@ resource "aws_network_acl" "vpc_acls" {
     }
 
     tags {
-        Name = "vpc_acls_${var.aws_project_name}"
+        Name = "vpc_acls_${var.aws_platform_name}"
     }
 }
 
@@ -112,7 +102,7 @@ resource "aws_security_group" "all_access" {
   # END ALL ACCESS
 
   tags {
-      Name = "sg_fronts_${var.aws_project_name}"
+      Name = "sg_fronts_${var.aws_platform_name}"
   }
 }
 
@@ -125,7 +115,7 @@ resource "aws_route_table" "default" {
     }
 
     tags {
-        Name = "vpc_rt_${var.aws_project_name}"
+        Name = "vpc_rt_${var.aws_platform_name}"
     }
 }
 
@@ -136,10 +126,5 @@ resource "aws_route_table_association" "az1_rt" {
 
 resource "aws_route_table_association" "az2_rt" {
     subnet_id = "${aws_subnet.aws_az2.id}"
-    route_table_id = "${aws_route_table.default.id}"
-}
-
-resource "aws_route_table_association" "az3_rt" {
-    subnet_id = "${aws_subnet.aws_az3.id}"
     route_table_id = "${aws_route_table.default.id}"
 }

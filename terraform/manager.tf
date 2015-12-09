@@ -12,6 +12,6 @@ resource "aws_instance" "docker_manager_1" {
       volume_size = 30
     }
     tags {
-      Name = "${var.aws_project_name}_docker_manager_1"
+      Name = "${var.aws_platform_name}_docker_manager_1"
     }
 }

@@ -12,7 +12,7 @@ resource "aws_instance" "docker_slave_1" {
       volume_size = 30
     }
     tags {
-      Name = "${var.aws_project_name}_docker_slave_1"
+      Name = "${var.aws_platform_name}_docker_slave_1"
     }
 }
 
@@ -30,7 +30,7 @@ resource "aws_instance" "docker_slave_2" {
       volume_size = 30
     }
     tags {
-      Name = "${var.aws_project_name}_docker_slave_2"
+      Name = "${var.aws_platform_name}_docker_slave_2"
     }
 }
 
@@ -48,6 +48,6 @@ resource "aws_instance" "docker_slave_3" {
       volume_size = 30
     }
     tags {
-      Name = "${var.aws_project_name}_docker_slave_3"
+      Name = "${var.aws_platform_name}_docker_slave_3"
     }
 }

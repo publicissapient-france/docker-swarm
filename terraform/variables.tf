@@ -16,19 +16,18 @@ variable "aws_region" {
 variable "aws_region_azs" {
   description = "Map for AZs listing"
   default = {
-    az1 = "eu-west-1a"
-    az2 = "eu-west-1b"
-    az3 = "eu-west-1c"
+    az1 = "eu-central-1a"
+    az2 = "eu-central-1b"
   }
 }
 
-variable "aws_project_name" {
-  description = "Project name"
+variable "aws_platform_name" {
+  description = "Platform name"
   default = "docker-swarm-techevent"
 }
 
 variable "aws_keypair" {
-  description = "Keypair to "
+  description = "Keypair to use with AWS EC2 machines"
 }
 
 variable "aws_instance_type" {
