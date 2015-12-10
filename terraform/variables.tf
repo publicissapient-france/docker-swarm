@@ -38,7 +38,7 @@ variable "aws_instance_type" {
 # AMI IDs
 variable "aws_ami_base" {
   description = "Base AMI ID"
-  default = "ami-02392b6e"
+  default = "ami-7d948911"
 }
 
 # VPC configuration

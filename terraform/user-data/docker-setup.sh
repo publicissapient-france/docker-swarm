@@ -1,17 +1,26 @@
 #!/bin/bash
 
 # Prepare the EBS device and use it as docker workspace
-(file -s /dev/xvdk | grep -q ext4) || mkfs.ext4 /dev/xvdk
-mkdir /var/lib/docker
-mount /dev/xvdk /var/lib/docker
-echo "/dev/xvdk /var/lib/docker  ext4 defaults  0 0" >> /etc/fstab
+(file -s /dev/xvdk | grep -q ext4) || (mkfs.ext4 /dev/xvdk | tee /var/log/cloud-init-mkfs.log)
+
+if [[ ! -d "/var/lib/docker" ]] ; then
+  mkdir /var/lib/docker
+fi
+
+if ! grep -q "/var/lib/docker" /etc/fstab ; then
+  echo "/dev/xvdk /var/lib/docker  ext4 defaults  0 0" >> /etc/fstab
+fi
+
+# Mount all mountpoints
+mount -a
 
 # Set the hostname to be the public IP address of the instance.
 # If the call to myip fails, set a default hostname.
 if ! curl --silent --fail http://myip.enix.org/REMOTE_ADDR >/etc/hostname; then
     echo dockerhost >/etc/hostname
 fi
-service hostname start
+
+hostname $(cat /etc/hostname)
 
 # Fancy prompt courtesy of @soulshake.
 echo 'export PS1="\[\033[0;35m\]\u@\H \[\033[0;33m\]\w\[\033[0m\]: "' >> /etc/skel/.bashrc
@@ -27,7 +36,7 @@ sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_c
 service ssh restart
 
 apt-get -q update
-apt-get -qy install git jq python-pip
+apt-get -qy install git jq
 
 # This will install the latest Docker.
 curl https://get.docker.com/ | sh
@@ -36,8 +45,6 @@ curl https://get.docker.com/ | sh
 # This is to allow API experimentation with curl.
 echo 'DOCKER_OPTS="-H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375"' >> /etc/default/docker
 service docker restart
-
-pip install -U docker-compose
 
 # Wait for docker to be up.
 # If we don't do this, Docker will not be responsive during the next step.
@@ -54,4 +61,3 @@ for I in \
 do
 	docker pull $I
 done
-²
