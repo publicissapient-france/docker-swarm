@@ -41,10 +41,31 @@ apt-get -qy install git jq
 # This will install the latest Docker.
 curl https://get.docker.com/ | sh
 
+# Override the systemd unit for DAEMON_OPTS changes
+cat > /etc/systemd/system/docker.service <<EOF
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket
+Requires=docker.socket
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/default/docker
+ExecStart=/usr/bin/docker daemon -H fd:// \$DOCKER_OPTS
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # Allow connections through a local HTTP socket.
 # This is to allow API experimentation with curl.
 echo 'DOCKER_OPTS="-H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375"' >> /etc/default/docker
-service docker restart
+systemctl stop docker && systemctl daemon-reload && sleep 5 && systemctl start docker
 
 # Wait for docker to be up.
 # If we don't do this, Docker will not be responsive during the next step.
