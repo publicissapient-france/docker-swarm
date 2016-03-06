@@ -122,7 +122,28 @@ $ export DOCKER_HOST=tcp://<manager_ip>:4000
 de chaque commande Docker grâce à l'option -H</p>
 
 {% highlight bash %}
-$ $ docker -H <manager_ip>:4000 <docker_cmd>
+$ docker -H <manager_ip>:4000 <docker_cmd>
+{% endhighlight %}
+
+<p>Vérifier votre client Docker</p>
+
+{% highlight bash %}
+$ docker version
+Client:
+ Version:      1.10.2
+ API version:  1.22
+ Go version:   go1.5.3
+ Git commit:   c3959b1
+ Built:        Mon Feb 22 21:40:35 2016
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      swarm/1.1.3
+ API version:  1.22
+ Go version:   go1.5.3
+ Git commit:   7e9c6bd
+ Built:        Wed Mar  2 00:15:12 UTC 2016
+ OS/Arch:      linux/amd64
 {% endhighlight %}
 
 <h3>Fonctionnalités de base</h3>
