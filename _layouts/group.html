@@ -194,7 +194,7 @@ Server:
 seuls quelques paramètres supplémentaires apparaissent ainsi que de nouvelles informations
 sur la sortie du client Docker.</p>
 
-<p>Lancer une instance de Redis</p>
+<p>Lancer une instance de Nginx</p>
 
 {% highlight bash %}
 $ docker run -d nginx
@@ -228,3 +228,88 @@ $ docker inspect 52.28.211.86/prickly_mayer
 
 <p>Il reste possible d'administrer directement les noeuds unitairement, en faisant pointer
 le client Docker vers le noeud à administrer.</p>
+
+<h3>Gestion des resources</h3>
+
+<p>Lancer plusieurs instances de Redis en réservant 2 CPU pour chaque instance, 
+en utilisant l'option --cpu-shares.</p>
+
+{% highlight bash %}
+$ docker run -d --cpu-shares 2 redis
+{% endhighlight %}
+
+<p>Vous ne devriez pas pouvoir lancer plus de 2 instances de Redis et avoir le message
+d'erreur suivant une fois que l'ensemble des resources soit utilisé :</p>
+
+{% highlight bash %}
+docker: Error response from daemon: no resources available to schedule container.
+See 'docker run --help'.
+{% endhighlight %}
+
+<p>Vérifier l'utilisation des resources au sein du cluster avec la commande docker info</p>
+
+{% highlight bash %}
+$ docker info
+Containers: 8
+ Running: 8
+ Paused: 0
+ Stopped: 0
+Images: 14
+Server Version: swarm/1.1.3
+Role: primary
+Strategy: spread
+Filters: health, port, dependency, affinity, constraint
+Nodes: 2
+ 52.28.227.0: 52.28.227.0:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 2 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T15:43:03Z
+ 52.29.87.59: 52.29.87.59:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 2 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T15:42:47Z
+Plugins: 
+ Volume: 
+ Network: 
+Kernel Version: 4.2.0-19-generic
+Operating System: linux
+Architecture: amd64
+CPUs: 4
+Total Memory: 15.34 GiB
+Name: dad66ef64043
+{% endhighlight %}
+
+<p>Vous pouvez également lancer plusieurs instances de Redis en mappant le port 6379 sur le host.</p>
+
+{% highlight bash %}
+$ docker run -d -p 6379:6379 redis
+{% endhighlight %}
+
+<p>Vous ne devriez pas pouvoir lancer plus d'instance que vous avez de noeud au sein de votre cluster.
+Une instance par noeud. Le message suivant devrait ensuite s'afficher :</p>
+
+{% highlight bash %}
+docker: Error response from daemon: unable to find a node with port 6379 available.
+See 'docker run --help'.
+{% endhighlight %}
+
+<p>Vous pouvez vérifier l'emplacement des conteneurs Redis au sein de votre cluster en utilisant label
+commande docker ps.</p>
+
+{% highlight bash %}
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                         NAMES
+1c561511b2b1        redis               "/entrypoint.sh redis"   3 seconds ago       Up 3 seconds        52.29.87.59:6379->6379/tcp    52.29.87.59/insane_stonebraker
+6aa745068037        redis               "/entrypoint.sh redis"   4 seconds ago       Up 4 seconds        52.28.227.0:6379->6379/tcp    52.28.227.0/drunk_thompson
+...
+{% endhighlight %}
+
+<h3>Utilisation des contraintes</h3>
