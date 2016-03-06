@@ -801,3 +801,84 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 {% highlight bash %}
 $ DOCKER_HOST= docker start 14fe82905d38
 {% endhighlight %}
+
+<h3>Création de l'Overlay Network</h3>
+
+<p>Afin de créer un Overlay Network avec 10.10.10.0/24 comme subnet, utilisez la
+commande docker network.</p>
+
+{% highlight bash %}
+$ docker network create -d overlay --subnet 10.10.10.0/24 multinet
+{% endhighlight %}
+
+<p>Vérifiez la présence de l'overlay network avec la commande docker network ls.</p>
+
+{% highlight bash %}
+$ docker network ls
+NETWORK ID          NAME                 DRIVER
+e2fc534c24a0        52.28.227.0/host     host                
+8c4086c0e7a5        52.28.227.0/bridge   bridge              
+b05b1679ee04        multinet             overlay             
+9bb3be008889        52.29.87.59/host     host                
+73e8e14e29d9        52.29.87.59/bridge   bridge              
+9d6e0696089e        52.29.87.59/none     null                
+d8007acb6460        52.28.227.0/none     null
+{% endhighlight %}
+
+<h3>Lancer des conteneurs</h3>
+
+<p>Afin de lancer un conteneur au sein de votre réseau multi-hosts, il suffit d'utiliser
+l'option --net=<network name>.</p>
+
+<p>Commencez par lancer un conteneur Nginx qui fera office de serveur.</p>
+
+{% highlight bash %}
+$ docker run -d --name server --net multinet nginx
+{% endhighlight %}
+
+<p>À présent, lancez un second conteneur qui fera office de client.</p>
+
+{% highlight bash %}
+$ docker run -it -d --name client --net multinet ubuntu
+{% endhighlight %}
+
+<p>Afin de vérifier que la communication entre notre client et notre serveur
+fonctionne correctement,nous allons installer curl puis executer nous connecter
+sur le serveur depuis le client.</p>
+
+<p>Installez curl dans le conteneur client :</p>
+
+{% highlight bash %}
+$ docker exec -it client apt-get install -y curl
+{% endhighlight %}
+
+<p>Lancez la commande curl :</p>
+
+{% highlight bash %}
+$ docker exec -it client curl server
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+{% endhighlight %}
