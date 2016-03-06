@@ -1,20 +1,20 @@
-Utilisation de terraform
-========================
+Terraform usage
+===============
 
-# Prérequis
+# Prerequisites
 
-Terraform doit être installé (terraform.io)
+Terraform needs to be installed (terraform.io)
 
-# Création de l'infra
+# Creating the platform
 
 ```bash
 export AWS_ACCESS_KEY_ID="YOUR_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="YOUR_ACCESS_KEY"
 export AWS_REGION="eu-central-1"
-terraform apply -var aws_keypair=nom_de_la_clé_ssh_amazon
+terraform apply
 ```
 
-En sortie, terraform affiche les URL docker de chaque machine :
+Terraform will output the docker URL of each machine :
 
 ```
 Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
@@ -27,7 +27,19 @@ Outputs:
   docker_slave_3_url = tcp://52.28.205.98:2375
 ```
 
-# Destruction de l'infra
+# Connecting to the platform
+
+An SSH key is embedded in this state declaration, available at `../ssh/`.
+You'll need to use this key to connect to the machines, like that :
+
+```bash
+ssh -i ssh/swarm-insecure-keypair [machine_ip]
 ```
-terraform destroy -var aws_keypair=nom_de_la_clé_ssh_amazon
+
+# Cleaning the platform
+
+This will also remove the insecure SSH key from your AWS account.
+
+```
+terraform destroy
 ```
