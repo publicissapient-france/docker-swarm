@@ -478,7 +478,7 @@ $ docker run -d -p 4000:4000 swarm manage -H :4000 --advertise <master_ip>:4000 
 
 <h2>Gestion des filtres</h2>
 
-<h3>Filter par resource</h3>
+<h3>Filtrer par resource</h3>
 
 <p>Lancez plusieurs instances de Redis en réservant 2 CPU pour chaque instance, 
 en utilisant l'option --cpu-shares.</p>
@@ -536,7 +536,7 @@ Total Memory: 15.34 GiB
 Name: dad66ef64043
 {% endhighlight %}
 
-<h3>Filter par port</h3>
+<h3>Filtrer par port</h3>
 
 <p>Vous pouvez également lancer plusieurs instances de Redis en mappant le port 6379 sur le host.</p>
 
@@ -563,7 +563,7 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 ...
 {% endhighlight %}
 
-<h3>Filter par contrainte</h3>
+<h3>Filtrer par contrainte</h3>
 
 <p>Ajoutez un label <strong><em>storage=ssd</em></strong> sur un des noeuds du cluster
 en éditant à nouveau le fichier <strong><em>/etc/default/docker</em></strong>.</p>
