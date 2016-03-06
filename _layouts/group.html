@@ -96,3 +96,47 @@ Name: 475064661cb2
 <p>Vous devriez avoir une sortie ressemblant à cela, avec un nombre variable de
 noeuds en fonction du nombre de personnes ayant rejoint le cluster. Si l'IP de
 votre machine est présente, vous avez bien rejoint le cluster !</p>
+
+<p>Une méthode plus rapide pour lister tous les noeuds du cluster est d'utiliser
+le client swarm comme ceci :</p>
+
+{% highlight bash %}
+$ docker run --rm swarm list consul://<consul_ip>:8500
+time="2016-03-06T13:34:21Z" level=info msg="Initializing discovery without TLS"
+10.10.0.113:2375
+{% endhighlight %}
+
+<h2>Démarrer des conteneurs sur Swarm</h2>
+
+<h3>Fonctionnalités de base</h3>
+<p>Lancer des conteneurs sur un cluster Swarm est aussi simple que sur un Docker Engine local,
+seuls quelques paramètres supplémentaires apparaissent ainsi que de nouvelles informations
+sur la sortie du client Docker. Voici un exemple :</p>
+
+{% highlight bash %}
+$ docker -H <manager_ip>:4000 run -id nginx
+cd4933ec58cbe457508a498926945a32bf983a688b878d3771257830ddf7be73
+$ docker -H <manager_ip>:4000 ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+cd4933ec58cb        nginx               "nginx -g 'daemon off"   14 seconds ago      Up 14 seconds       80/tcp, 443/tcp     52.28.211.86/prickly_mayer
+{% endhighlight %}
+
+<p>On voit ici que les noms des conteneurs dockers sont agrémentés d'un préfixe supplémentaire,
+donnant le nom du noeud sur lequel le conteneur a été démarré. La commande inspect fonctionne aussi
+de la même manière :</p>
+
+{% highlight bash %}
+$ docker -H <manager_ip>:4000 inspect 52.28.211.86/prickly_mayer
+[
+    {
+        "Id": "cd4933ec58cbe457508a498926945a32bf983a688b878d3771257830ddf7be73",
+        "Created": "2016-03-06T13:40:29.322115236Z",
+        "Path": "nginx",
+        "Args": [
+            "-g",
+            "daemon off;"
+        ],
+{% endhighlight %}
+
+<p>Il reste possible d'administrer directement les noeuds unitairement, en faisant pointer
+le client Docker vers le noeud à administrer.</p>
