@@ -565,8 +565,32 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 
 <h3>Filtrer par contrainte</h3>
 
-<p>Ajoutez un label <strong><em>storage=ssd</em></strong> sur un des noeuds du cluster
-en éditant à nouveau le fichier <strong><em>/etc/default/docker</em></strong>.</p>
+<p>Vous pouvez filtrer vos conteneurs en vous appuyant sur les contraintes par défaut
+visible dans la section Labels du résultat de la commande docker info</p>
+
+{% highlight bash %}
+Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+{% endhighlight %}
+
+<p>Vous pouvez également indiquer un noeud comme contrainte pour directement spécifier
+sur quel noeud vous souhaitez que votre conteneur s'exécute.</p>
+
+<p>Lancez un conteneur sur un noeud spécifique :</p>
+
+{% highlight bash %}
+$ docker run -d -e constraint:node==52.28.227.0 nginx
+{% endhighlight %}
+
+<p>Lancez un conteneur sur un noeud différent de celui indiqué :</p>
+
+{% highlight bash %}
+$ docker run -d -e constraint:node!=52.28.227.0 nginx
+{% endhighlight %}
+
+<p>Vous pouvez également utiliser vos propres labels comme contraintes.</p>
+
+<p>Pour cela, ajoutez un label <strong><em>storage=ssd</em></strong> sur un des noeuds du cluster
+en éditant le fichier <strong><em>/etc/default/docker</em></strong>.</p>
 
 {% highlight bash %}
 DOCKER_OPTS="-H tcp://0.0.0.0:2375 --label storage=ssd"
