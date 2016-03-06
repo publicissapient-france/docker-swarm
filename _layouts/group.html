@@ -15,7 +15,7 @@ Il sera impératif de les utiliser pour permettre le bon fonctionnement du clust
 $ ssh -l docker swarm-{{page.groupId}}.aws.xebiatechevent.info
 {% endhighlight %}
 
-<h2>Initialiser un cluster Swarm</h2>
+<h2>Configuration du cluster Swarm</h2>
 
 <h3>Préparation de l'infrastructure</h3>
 
@@ -55,11 +55,9 @@ Remplacez master_ip par l'adresse IP du Swarm Manager (il doit s'annoncer lui-m�
 auprès du système de découverte de service) et consul_ip par l'IP du serveur hébergeant 
 le consul déployé précédemment.</p>
 
-<h2>Intégrer le cluster Swarm</h2>
+<h3>Rejoindre le cluster</h3>
 
 <p>Avec notre manager Swarm disponible, nous allons pouvoir intégrer les noeuds Docker Engine dans le cluster !</p>
-
-<h3>Rejoindre le cluster</h3>
 
 <p>Avant de lancer l'agent Swarm, assurez-vous que votre démon Docker est bien configuré pour
 rejoindre le cluster.</p>
