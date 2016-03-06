@@ -64,7 +64,7 @@ EOF
 
 # Allow connections through a local HTTP socket.
 # This is to allow API experimentation with curl.
-echo 'DOCKER_OPTS="-H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375"' >> /etc/default/docker
+echo 'DOCKER_OPTS="-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375"' >> /etc/default/docker
 systemctl stop docker && systemctl daemon-reload && sleep 5 && systemctl start docker
 
 # Wait for docker to be up.
@@ -76,8 +76,7 @@ done
 
 # Pre-pull a bunch of images.
 for I in \
-	debian:latest ubuntu:latest fedora:latest centos:latest \
-	redis swarm
+	redis nginx swarm
 
 do
 	docker pull $I

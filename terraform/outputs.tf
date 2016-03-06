@@ -1,3 +1,6 @@
+output "docker_infra_services_url" {
+    value = "tcp://${aws_instance.docker_infra_services.public_ip}:2375"
+}
 output "docker_manager_url" {
     value = "tcp://${aws_instance.docker_manager_1.public_ip}:2375"
 }

@@ -28,6 +28,7 @@ variable "aws_platform_name" {
 
 variable "aws_keypair" {
   description = "Keypair to use with AWS EC2 machines"
+  default = "swarm-insecure-keypair"
 }
 
 variable "aws_instance_type" {

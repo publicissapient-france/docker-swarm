@@ -1,0 +1,4 @@
+resource "aws_key_pair" "swarm-insecure-keypair" {
+  key_name = "swarm-insecure-keypair"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKnTF/OUXHo9A3+Xm2HsVjfJ1+NAMBlvWI58nZLRb3VZvArPfEKy2SXSamlTQrUDpO7NLIgmawx/4w5LlIZywdO3opJba4uhvVcF7yXFHCvqQ2qfu3Zzl9j97MtnLauVFnzcXed1s+C+XEgDjnPo289weBlcAKu0QEhW9AKBrQhZOSQ4/uffEKP5bp/TRuCmXBLExif85jw2kCLHINQP1gi3X1277aB75RUnrc1GotGyjL8ztisu1XpzS0aozhbhfRffzvK8BaUw5/Q6jALNfM84/ndIAoSTgJ9CWl5Z45a6e8J7G5MhyH5CeyejwxNDbs+72b8roFhst/h5BGyLA9 swarm-insecure-keypair"
+}
