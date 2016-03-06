@@ -678,3 +678,39 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 d8bb62cf1485        redis               "/entrypoint.sh redis"   4 seconds ago       Up 3 seconds        6379/tcp                      52.28.227.0/sick_mcnulty
 {% endhighlight %}
 
+<h3>Filtrer par affinité</h3>
+
+<p>Les affinités permettent à Swarm de filtrer les conteneurs sur des noeuds qui possèdent
+un conteneur ou une image spécifique. Il est par exemple possible de lancer un conteneur
+sur un noeud sur lequel se trouve un conteneur avec une base de données MySQL ou sur un noeud
+qui contient l'image Tomcat.</p>
+
+<p>Lancez un conteneur Tomcat en lui donnant le nom "appserver".</p>
+
+{% highlight bash %}
+$ docker run -d --name appserver tomcat
+{% endhighlight %}
+
+<p>Vérifiez sur quel noeud le conteneur s'est lancé.</p>
+
+{% highlight bash %}
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+5dccf3b535da        tomcat              "catalina.sh run"   2 seconds ago       Up 2 seconds        8080/tcp            52.28.227.0/appserver
+{% endhighlight %}
+
+<p>Maintenant lancez un conteneur Nginx en indiquant une contrainte d'affinité afin qu'il soit
+lancé sur le même noeud que celui où se trouve le conteneur Tomcat.</p>
+
+{% highlight bash %}
+$ docker run -d -e affinity:container==appserver nginx
+{% endhighlight %}
+
+<p>Vérifiez que le conteneur Nginx s'est bien lancé sur le même noeud que le conteneur Tomcat.</p>
+
+{% highlight bash %}
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+ffee14fb9b13        nginx               "nginx -g 'daemon off"   1 seconds ago       Up 1 seconds        80/tcp, 443/tcp     52.28.227.0/sad_leakey
+5dccf3b535da        tomcat              "catalina.sh run"        43 seconds ago      Up 43 seconds       8080/tcp            52.28.227.0/appserver
+{% endhighlight %}
