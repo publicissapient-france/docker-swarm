@@ -7,12 +7,14 @@ js: ../javascripts/main.js
 <p>Pour ce hands'on, vous aurez à votre disposition 3 instances Amazon AWS.
 Il sera impératif de les utiliser pour permettre le bon fonctionnement du cluster Swarm !</p>
 
-<p>Toutes les machines utilisent la même clef ssh, et ont le même login <strong><em>docker</em></strong>.</p>
+<p>Toutes les machines utilisent la même clef ssh, et ont le même login
+<strong><em>docker</em></strong>.</p>
 
-<p>Pour valider le fonctionnement de vos instances, connectez-vous avec la commande suivante (le mot de passe vous sera donné en séance) : </p>
+<p>Pour valider le fonctionnement de vos instances, connectez-vous avec la commande
+suivante (le mot de passe vous sera donné en séance) :</p>
 
 {% highlight bash %}
-$ ssh -l docker swarm-{{page.groupId}}.aws.xebiatechevent.info
+$ ssh docker@<machine_ip>
 {% endhighlight %}
 
 <h2>Configuration du cluster Swarm</h2>
