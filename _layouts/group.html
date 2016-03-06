@@ -108,14 +108,28 @@ time="2016-03-06T13:34:21Z" level=info msg="Initializing discovery without TLS"
 
 <h2>Démarrer des conteneurs sur Swarm</h2>
 
+<h3>Configurer son client Docker</h3>
+
+<p>Afin de pouvoir facilement contrôler le cluster Swarm, vous pouvez faire pointer 
+votre client Docker sur le Swarm Manager en utilisant la variable d'environnement
+DOCKER_HOST</p>
+
+{% highlight bash %}
+$ export DOCKER_HOST=tcp://<manager_ip>:4000
+{% endhighlight %}
+
 <h3>Fonctionnalités de base</h3>
+
 <p>Lancer des conteneurs sur un cluster Swarm est aussi simple que sur un Docker Engine local,
 seuls quelques paramètres supplémentaires apparaissent ainsi que de nouvelles informations
 sur la sortie du client Docker. Voici un exemple :</p>
 
 {% highlight bash %}
-$ docker -H <manager_ip>:4000 run -id nginx
+$ docker -H <manager_ip>:4000 run -P -d nginx
 cd4933ec58cbe457508a498926945a32bf983a688b878d3771257830ddf7be73
+{% endhighlight %}
+
+{% highlight bash %}
 $ docker -H <manager_ip>:4000 ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
 cd4933ec58cb        nginx               "nginx -g 'daemon off"   14 seconds ago      Up 14 seconds       80/tcp, 443/tcp     52.28.211.86/prickly_mayer
