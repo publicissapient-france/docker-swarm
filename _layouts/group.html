@@ -4,12 +4,12 @@ css: ../stylesheets/stylesheet.css
 js: ../javascripts/main.js
 ---
 
-<p>Pour ce hands'on, vous aurez à votre disposition une instance amazon.
-Il sera impératif de l'utiliser pour permettre le bon fonctionnement du cluster Swarm qui sera monté !</p>
+<p>Pour ce hands'on, vous aurez à votre disposition 3 instances Amazon AWS.
+Il sera impératif de les utiliser pour permettre le bon fonctionnement du cluster Swarm !</p>
 
 <p>Toutes les machines utilisent la même clef ssh, et ont le même login <strong><em>docker</em></strong>.</p>
 
-<p>Pour valider le fonctionnement de votre instance, connectez-vous avec la commande suivante (le mot de passe vous sera donné en séance) : </p>
+<p>Pour valider le fonctionnement de vos instances, connectez-vous avec la commande suivante (le mot de passe vous sera donné en séance) : </p>
 
 {% highlight bash %}
 $ ssh -l docker swarm-{{page.groupId}}.aws.xebiatechevent.info
@@ -19,28 +19,41 @@ $ ssh -l docker swarm-{{page.groupId}}.aws.xebiatechevent.info
 
 <h3>Préparation de l'infrastructure</h3>
 
-<p>Swarm est composé de managers, qui jouent le rôle de serveur connaissant l'ensemble des noeuds, et d'agents,
+<p>Swarm se compose d'un manager, qui joue le rôle de serveur connaissant l'ensemble des noeuds, et d'agents,
 lancés sur les machines hébergeant les Docker Engine. L'ensemble du système repose sur un système de
-découverte de services externe, qui peut être fourni par Consul, Etcd ou Zookeeper. Nous allons ici utiliser Consul,
-qui sera lancé sur un noeud dédié hors du cluster. Sur ce Docker Engine hors du cluster, lancez la commande suivante :</p>
+découverte de services externe, qui peut être fourni par Consul, Etcd ou Zookeeper.</p>
+
+<p>Vous avez 3 machines à votre disposition. La première jouera le rôle de Master sur laquelle nous allons
+installer le système de découverte de services externe (dans notre cas Consul), ainsi que le Swarm Manager.</p>
+
+<p>Les deux autres machines joueront le rôle de slave sur lesquelles nous allons installer un agent Swarm.</p>
+
+<h3>Installation de Consul</h3>
+
+<p>Sur la première machine, lancez une instance de Consul à l'aide de la commande suivante :</p>
 
 {% highlight bash %}
 $ docker run -d -p 8500:8500 --name=consul progrium/consul -server -bootstrap
 {% endhighlight %}
 
-<p>Ceci va démarrer un serveur Consul standalone avec le port 8500 d'exposé, suffisant pour l'utilisation de Swarm.</p>
+<p>Ceci va démarrer un serveur Consul standalone avec le port 8500 d'exposé, 
+suffisant pour l'utilisation de Docker Swarm.</p>
 
 <h3>Initialisation du cluster</h3>
 
-<p>Maintenant que nous avons un Consul de disponible, nous pouvons initialiser le cluster ! Lancez la commande suivante sur le noeud manager :</p>
+<p>Maintenant que nous avons une instance de Consul de disponible, nous pouvons 
+initialiser le cluster !</p>
+
+<p>Lancez la commande suivante toujours sur la première machine :</p>
 
 {% highlight bash %}
-$ docker run -d -p 4000:4000 swarm manage -H :4000 --advertise <my_ip>:4000 consul://<consul_ip>:8500
+$ docker run -d -p 4000:4000 swarm manage -H :4000 --advertise <master_ip>:4000 consul://<consul_ip>:8500
 {% endhighlight %}
 
 <p>Cette commande démarre un manager écoutant sur le port 4000, et s'annonçant dans le Consul donné.
-Remplacez my_ip par l'ip du noeud manager (il doit s'annoncer lui-même) et consul_ip par l'IP du serveur
-hébergeant le consul déployé précédemment.</p>
+Remplacez master_ip par l'adresse IP du Swarm Manager (il doit s'annoncer lui-même 
+auprès du système de découverte de service) et consul_ip par l'IP du serveur hébergeant 
+le consul déployé précédemment.</p>
 
 <h2>Intégrer le cluster Swarm</h2>
 
@@ -48,7 +61,25 @@ hébergeant le consul déployé précédemment.</p>
 
 <h3>Rejoindre le cluster</h3>
 
-<p>Lancez la commande suivante pour faire rejoindre le cluster à un noeud :</p>
+<p>Avant de lancer l'agent Swarm, assurez-vous que votre démon Docker est bien configuré pour
+rejoindre le cluster. Pour cela, éditez le fichier <strong><em>/etc/default/docker</em></strong>
+en remplacant <strong><em>127.0.0.1</em></strong> par <strong><em>0.0.0.0</em></strong></p>
+
+{% highlight bash %}
+$ sudo vi /etc/default/docker
+{% endhighlight %}
+
+{% highlight bash %}
+DOCKER_OPTS="-H tcp://0.0.0.0:2375"
+{% endhighlight %}
+
+<p>Redémarer le démon Docker afin que la modification soit prise en compte</p>
+
+{% highlight bash %}
+$ sudo systemctl restart docker
+{% endhighlight %}
+
+<p>Sur chacun des noeuds, lancez la commande suivante pour rejoindre le cluster :</p>
 
 {% highlight bash %}
 $ docker run -d swarm join --advertise=<node_ip>:2375 consul://<consul_ip>:8500
@@ -64,33 +95,41 @@ de se connecter à un manager. Sur votre machine, lancez la commande suivante :<
 
 {% highlight bash %}
 $ docker -H <manager_ip>:4000 info
-Containers: 1
- Running: 1
+Containers: 6
+ Running: 6
  Paused: 0
  Stopped: 0
-Images: 3
+Images: 12
 Server Version: swarm/1.1.3
 Role: primary
 Strategy: spread
 Filters: health, port, dependency, affinity, constraint
-Nodes: 1
- 52.28.211.86: 10.10.0.113:2375
+Nodes: 2
+ 52.28.227.0: 52.28.227.0:2375
   └ Status: Healthy
-  └ Containers: 1
+  └ Containers: 3
   └ Reserved CPUs: 0 / 2
   └ Reserved Memory: 0 B / 7.669 GiB
   └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
   └ Error: (none)
-  └ UpdatedAt: 2016-03-06T13:27:31Z
-Plugins:
- Volume:
- Network:
+  └ UpdatedAt: 2016-03-06T15:28:03Z
+ 52.29.87.59: 52.29.87.59:2375
+  └ Status: Healthy
+  └ Containers: 3
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T15:27:38Z
+Plugins: 
+ Volume: 
+ Network: 
 Kernel Version: 4.2.0-19-generic
 Operating System: linux
 Architecture: amd64
-CPUs: 2
-Total Memory: 7.669 GiB
-Name: 475064661cb2
+CPUs: 4
+Total Memory: 15.34 GiB
+Name: dad66ef64043
 {% endhighlight %}
 
 <p>Vous devriez avoir une sortie ressemblant à cela, avec un nombre variable de
