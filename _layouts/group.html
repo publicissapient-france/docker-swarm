@@ -339,3 +339,93 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 {% endhighlight %}
 
 <h3>Utilisation des contraintes</h3>
+
+<p>Ajoutez un label <strong><em>disk=ssd</em></strong> sur un des noeuds du cluster
+en éditant à nouveau le fichier <strong><em>/etc/default/docker</em></strong>.</p>
+
+{% highlight bash %}
+DOCKER_OPTS="-H tcp://0.0.0.0:2375 --label disk=ssd"
+{% endhighlight %}
+
+<p>Redémarrez le démon Docker</p>
+
+{% highlight bash %}
+$ sudo systemctl status docker
+{% endhighlight %}
+
+<p>Récupérez l'identifiant du conteneur de l'agent Swarm qui s'est arrêté lorsque vous avez
+redémarré le démon Docker en utilisant la commande ps -a.</p>
+
+{% highlight bash %}
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS                         NAMES
+14fe82905d38        swarm               "/swarm join --advert"   About an hour ago   Up About an hour            2375/tcp                      52.29.87.59/cocky_wright
+eb9d893a6df5        swarm               "/swarm join --advert"   About an hour ago   Exited (2) 48 seconds ago                                 52.28.227.0/awesome_noether
+{% endhighlight %}
+
+<p>Puis, redémarrez l'agent Swarm en faisant un docker start.</p>
+
+{% highlight bash %}
+$ docker start eb9d893a6df5
+{% endhighlight %}
+
+<p>Vérifier que le cluster est correctement lancé avec la commande docker info.</p>
+
+{% highlight bash %}
+$ docker info
+Containers: 10
+ Running: 6
+ Paused: 0
+ Stopped: 4
+Images: 14
+Server Version: swarm/1.1.3
+Role: primary
+Strategy: spread
+Filters: health, port, dependency, affinity, constraint
+Nodes: 2
+ 52.28.227.0: 52.28.227.0:2375
+  └ Status: Healthy
+  └ Containers: 5
+  └ Reserved CPUs: 2 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: disk=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T16:21:04Z
+ 52.29.87.59: 52.29.87.59:2375
+  └ Status: Healthy
+  └ Containers: 5
+  └ Reserved CPUs: 2 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T16:21:08Z
+Plugins: 
+ Volume: 
+ Network: 
+Kernel Version: 4.2.0-19-generic
+Operating System: linux
+Architecture: amd64
+CPUs: 4
+Total Memory: 15.34 GiB
+Name: dad66ef64043
+{% endhighlight %}
+
+<p>Vérifiez que le nouveau label est bien apparu sur le noeud correspondant.</p>
+
+<p>Lancer plusieurs conteneurs avec la contrainte <strong><em>disk=ssd</em></strong> en 
+indiquant le label avec la variable d'environnement <strong><em>constraint</em></strong> :</p>
+
+{% highlight bash %}
+$ docker run -d -e constraint:disk==ssd redis
+{% endhighlight %}
+
+<p>Vérifiez que les conteneurs se sont bien lancés sur le noeud ayant la contrainte.</p>
+
+{% highlight bash %}
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                         NAMES
+3a283675ec09        redis               "/entrypoint.sh redis"   2 seconds ago       Up 1 seconds        6379/tcp                      52.28.227.0/goofy_liskov
+70ba2b2b24d6        redis               "/entrypoint.sh redis"   3 seconds ago       Up 2 seconds        6379/tcp                      52.28.227.0/admiring_feynman
+d8bb62cf1485        redis               "/entrypoint.sh redis"   4 seconds ago       Up 3 seconds        6379/tcp                      52.28.227.0/sick_mcnulty
+{% endhighlight %}
+
