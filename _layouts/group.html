@@ -382,7 +382,7 @@ Nodes: 2
   └ Containers: 4
   └ Reserved CPUs: 0 / 2
   └ Reserved Memory: 0 B / 7.669 GiB
-  └ Labels: disk=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
   └ Error: (none)
   └ UpdatedAt: 2016-03-06T17:01:50Z
  52.29.87.59: 52.29.87.59:2375
@@ -432,7 +432,7 @@ Nodes: 2
   └ Containers: 2
   └ Reserved CPUs: 0 / 2
   └ Reserved Memory: 1.953 GiB / 7.669 GiB
-  └ Labels: disk=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
   └ Error: (none)
   └ UpdatedAt: 2016-03-06T17:08:52Z
  52.29.87.59: 52.29.87.59:2375
@@ -463,6 +463,12 @@ $ docker rm -fv $(docker ps -q)
 <p>La stratégie Random n'utilise aucun algorithme de classement et exécute simplement
 chaque conteneur sur un noeud du cluster choisi aléatoirement. Cette stratégie n'a
 d'intérêt que pour des tests ou du debug.</p>
+
+<p>Pensez à relancer votre Swarm Manager avec la stratégie par défaut pour la suite de l'atelier.</p>
+
+{% highlight bash %}
+$ docker run -d -p 4000:4000 swarm manage -H :4000 --advertise <master_ip>:4000 consul://<consul_ip>:8500
+{% endhighlight %}
 
 <h3>Gestion des resources</h3>
 
@@ -549,11 +555,11 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 
 <h3>Utilisation des contraintes</h3>
 
-<p>Ajoutez un label <strong><em>disk=ssd</em></strong> sur un des noeuds du cluster
+<p>Ajoutez un label <strong><em>storage=ssd</em></strong> sur un des noeuds du cluster
 en éditant à nouveau le fichier <strong><em>/etc/default/docker</em></strong>.</p>
 
 {% highlight bash %}
-DOCKER_OPTS="-H tcp://0.0.0.0:2375 --label disk=ssd"
+DOCKER_OPTS="-H tcp://0.0.0.0:2375 --label storage=ssd"
 {% endhighlight %}
 
 <p>Redémarrez le démon Docker</p>
@@ -597,7 +603,7 @@ Nodes: 2
   └ Containers: 5
   └ Reserved CPUs: 2 / 2
   └ Reserved Memory: 0 B / 7.669 GiB
-  └ Labels: disk=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Labels: storage=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
   └ Error: (none)
   └ UpdatedAt: 2016-03-06T16:21:04Z
  52.29.87.59: 52.29.87.59:2375
@@ -621,11 +627,11 @@ Name: dad66ef64043
 
 <p>Vérifiez que le nouveau label est bien apparu sur le noeud correspondant.</p>
 
-<p>Lancer plusieurs conteneurs avec la contrainte <strong><em>disk=ssd</em></strong> en 
+<p>Lancer plusieurs conteneurs avec la contrainte <strong><em>storage=ssd</em></strong> en 
 indiquant le label avec la variable d'environnement <strong><em>constraint</em></strong> :</p>
 
 {% highlight bash %}
-$ docker run -d -e constraint:disk==ssd redis
+$ docker run -d -e constraint:storage==ssd redis
 {% endhighlight %}
 
 <p>Vérifiez que les conteneurs se sont bien lancés sur le noeud ayant la contrainte.</p>
