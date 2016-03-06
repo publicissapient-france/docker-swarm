@@ -62,12 +62,15 @@ le consul déployé précédemment.</p>
 <h3>Rejoindre le cluster</h3>
 
 <p>Avant de lancer l'agent Swarm, assurez-vous que votre démon Docker est bien configuré pour
-rejoindre le cluster. Pour cela, éditez le fichier <strong><em>/etc/default/docker</em></strong>
-en remplacant <strong><em>127.0.0.1</em></strong> par <strong><em>0.0.0.0</em></strong></p>
+rejoindre le cluster.</p>
+
+<p>Pour cela, éditez le fichier <strong><em>/etc/default/docker</em></strong>.</p>
 
 {% highlight bash %}
 $ sudo vi /etc/default/docker
 {% endhighlight %}
+
+<p>Remplacez <strong><em>127.0.0.1</em></strong> par <strong><em>0.0.0.0</em></strong>.</p>
 
 {% highlight bash %}
 DOCKER_OPTS="-H tcp://0.0.0.0:2375"
