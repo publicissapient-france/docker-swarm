@@ -713,4 +713,91 @@ ffee14fb9b13        nginx               "nginx -g 'daemon off"   1 seconds ago  
 5dccf3b535da        tomcat              "catalina.sh run"        43 seconds ago      Up 43 seconds       8080/tcp            52.28.227.0/appserver
 {% endhighlight %}
 
-<h2>Réseau multi-host</h2>
+<h2>Réseau multi-hosts</h2>
+
+<p>Les conteneurs se trouvant sur différents hosts ne peuvent communiquer ensemble sans
+avoir à mapper les ports sur le host. Un réseau multi-hosts va permettre de faire communiquer
+ces conteneurs sans avoir à mapper les ports.</p>
+
+<p>Le démon Docker supporte les réseaux multi-hosts nativement grâce à l'overlay network driver.
+Ce driver necessite l'accès à un KV Store et chacun des noeuds du cluster doivent être
+correctement configurés. Le KV Store permet de stocker les informations liées à
+la mise d'un overlay network (discovery, endpoints et adresses IP). Les solutions
+compatibles sont Consul, Zookeeper, Etcd ou BoltDB.</p>
+
+<p>Dans la suite de l'atelier, nous allons réutiliser notre instance de Consul comme
+KV Store.</p>
+
+<h3>Configuration du cluster</h3>
+
+<p>Nous allons configurer le démon Docker sur chacun des noeud du cluster afin d'indiquer
+l'emplacement du KV Store.</p>
+
+<p>Ouvrez le fichier de configuration de Docker <strong><em>/etc/default/docker</em></strong> :</p>
+
+{% highlight bash %}
+$ sudo vi /etc/default/docker
+{% endhighlight %}
+
+<p>Ajoutez les informations liés au KV Store :</p>
+
+{% highlight bash %}
+DOCKER_OPTS="-H tcp://0.0.0.0:2375 --cluster-store=consul://<consul_ip>:8500/network --cluster-advertise=eth0:2375"
+{% endhighlight %}
+
+<p>Pensez à remplacer <consul_ip> par l'IP de votre machine Master sur laquelle se trouve
+votre instance de Consul.</p>
+
+<p>Redémarez le démon Docker</p>
+
+{% highlight bash %}
+$ sudo systemctl restart docker
+{% endhighlight %}
+
+<p>Vérifiez que la configuration a correctement été prise en compte :</p>
+
+{% highlight bash %}
+$ DOCKER_HOST= docker info
+Containers: 1
+ Running: 0
+ Paused: 0
+ Stopped: 1
+Images: 7
+Server Version: 1.10.2
+Storage Driver: aufs
+ Root Dir: /var/lib/docker/aufs
+ Backing Filesystem: extfs
+ Dirs: 42
+ Dirperm1 Supported: true
+Execution Driver: native-0.2
+Logging Driver: json-file
+Plugins: 
+ Volume: local
+ Network: bridge null host
+Kernel Version: 4.2.0-19-generic
+Operating System: Ubuntu 15.10
+OSType: linux
+Architecture: x86_64
+CPUs: 2
+Total Memory: 7.303 GiB
+Name: 52.29.87.59
+ID: 3C7B:X3AP:ZFEL:N4RA:YUXE:GKLF:G4A5:3MPB:2VZZ:2GTM:I2OO:55JS
+WARNING: No swap limit support
+Cluster store: consul://52.28.157.156:8500/network
+Cluster advertise: 172.31.13.181:2375
+{% endhighlight %}
+
+<p>Relancez l'agent Swarm sur chacun des noeuds, en commencant par récupérer l'identifiant
+du conteneur correspondant.</p>
+
+{% highlight bash %}
+$ DOCKER_HOST= docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+14fe82905d38        swarm               "/swarm join --advert"   5 hours ago         Exited (2) 10 minutes ago                       cocky_wright
+{% endhighlight %}
+
+<p>Puis utilisez la commande docker start pour redémarer l'agent Swarm.</p>
+
+{% highlight bash %}
+$ DOCKER_HOST= docker start 14fe82905d38
+{% endhighlight %}
