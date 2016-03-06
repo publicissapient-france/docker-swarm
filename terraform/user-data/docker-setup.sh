@@ -22,6 +22,9 @@ fi
 
 hostname $(cat /etc/hostname)
 
+# Add some tools
+curl -o /usr/local/bin/myips https://raw.githubusercontent.com/nekonyuu/dotfiles/master/bin/myips && chmod +x /usr/local/bin/myips
+
 # Fancy prompt courtesy of @soulshake.
 echo 'export PS1="\[\033[0;35m\]\u@\H \[\033[0;33m\]\w\[\033[0m\]: "' >> /etc/skel/.bashrc
 
