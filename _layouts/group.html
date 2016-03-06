@@ -210,11 +210,25 @@ cd4933ec58cb        nginx               "nginx -g 'daemon off"   14 seconds ago 
 {% endhighlight %}
 
 <p>On voit ici que les noms des conteneurs dockers sont agrémentés d'un préfixe supplémentaire,
-donnant le nom du noeud sur lequel le conteneur a été démarré. La commande inspect fonctionne aussi
-de la même manière :</p>
+donnant le nom du noeud sur lequel le conteneur a été démarré.</p>
+
+<p>Il reste possible d'administrer directement les noeuds unitairement, en faisant pointer
+le client Docker vers le noeud à administrer.</p>
+
+<p>Vous pouvez utiliser toutes les mêmes commandes Docker au sein d'un cluster Swarm, une fois
+que le client Docker soit bien connecté au Swarm Manager.</p>
+
+<p>Par exemple, vous pouvez vérifier les logs d'un conteneur en utilisant la commande logs</p>
 
 {% highlight bash %}
-$ docker inspect 52.28.211.86/prickly_mayer
+$ docker logs prickly_mayer
+{% endhighlight %}
+
+<p>La commande inspect fonctionne aussi de la même manière. Il n'est pas nécessaire d'indiquer 
+le noeud dans le nom lorsque l'on utilise les commandes Docker.</p>
+
+{% highlight bash %}
+$ docker inspect prickly_mayer
 [
     {
         "Id": "cd4933ec58cbe457508a498926945a32bf983a688b878d3771257830ddf7be73",
@@ -226,8 +240,20 @@ $ docker inspect 52.28.211.86/prickly_mayer
         ],
 {% endhighlight %}
 
-<p>Il reste possible d'administrer directement les noeuds unitairement, en faisant pointer
-le client Docker vers le noeud à administrer.</p>
+<p>La commande images donne une vue combinées de l'ensemble des images présentes au sein du
+cluster.</p>
+
+{% highlight bash %}
+$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+fedora              latest              ddd5c9c1d0f2        45 hours ago        204.7 MB
+centos              latest              d0e7f81ca65c        46 hours ago        196.6 MB
+ubuntu              latest              07c86167cdc4        2 days ago          188 MB
+redis               latest              4f5f397d4b7c        3 days ago          177.6 MB
+nginx               latest              fd19524415dc        4 days ago          134.6 MB
+swarm               latest              291cbe419fe6        4 days ago          18.11 MB
+debian              latest              f50f9524513f        4 days ago          125.1 MB
+{% endhighlight %}
 
 <h3>Gestion des resources</h3>
 
