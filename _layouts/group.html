@@ -255,9 +255,218 @@ swarm               latest              291cbe419fe6        4 days ago          
 debian              latest              f50f9524513f        4 days ago          125.1 MB
 {% endhighlight %}
 
+<h3>Les stratégies d'orchestration</h3>
+
+<p>Docker Swarm a la capacité d'orchestrer les conteneurs au sein du cluster en s'appuyant
+sur différentes stratégies. Lorsque vous lancer un conteneur, Swarm l'exécutera sur le noeud
+ayant le rang le plus élevé. Le calcul du rang dépend de la stratégie utilisée :
+Spread (par défaut), Binpack ou Random.</p>
+
+<p>La stratégie Spread classe les noeuds selon le nombre de conteneurs lancés. Swarm lancera un nouveau
+conteneur sur le noeud qui possède le moins de conteneurs en cours d'execution.</p>
+
+<p>Lancer à nouveau plusieurs instances de Nginx.</p>
+
+{% highlight bash %}
+$ docker run -d nginx
+{% endhighlight %}
+
+<p>Vérifier la répartition des conteneurs à l'aide de la commande docker ps.</p>
+
+{% highlight bash %}
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+b1420393c045        nginx               "nginx -g 'daemon off"   4 seconds ago       Up 4 seconds        80/tcp, 443/tcp     52.28.227.0/modest_mestorf
+42b3a887aa9b        nginx               "nginx -g 'daemon off"   5 seconds ago       Up 5 seconds        80/tcp, 443/tcp     52.29.87.59/adoring_lalande
+1d321f3b9127        nginx               "nginx -g 'daemon off"   6 seconds ago       Up 6 seconds        80/tcp, 443/tcp     52.28.227.0/prickly_panini
+bb1c096b3be4        nginx               "nginx -g 'daemon off"   7 seconds ago       Up 6 seconds        80/tcp, 443/tcp     52.29.87.59/pedantic_shirley
+930656e67e77        nginx               "nginx -g 'daemon off"   7 seconds ago       Up 7 seconds        80/tcp, 443/tcp     52.29.87.59/ecstatic_poitras
+2394bbe3ebce        nginx               "nginx -g 'daemon off"   8 seconds ago       Up 8 seconds        80/tcp, 443/tcp     52.28.227.0/stupefied_stonebraker
+{% endhighlight %}
+
+<p>Vous pouvez également vérifier le nombre de conteneurs lancés sur chaque noeud
+avec la commande docker info.</p>
+
+{% highlight bash %}
+$ docker info
+Containers: 8
+ Running: 8
+ Paused: 0
+ Stopped: 0
+Images: 14
+Server Version: swarm/1.1.3
+Role: primary
+Strategy: spread
+Filters: health, port, dependency, affinity, constraint
+Nodes: 2
+ 52.28.227.0: 52.28.227.0:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T16:44:56Z
+ 52.29.87.59: 52.29.87.59:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T16:44:59Z
+Plugins: 
+ Volume: 
+ Network: 
+Kernel Version: 4.2.0-19-generic
+Operating System: linux
+Architecture: amd64
+CPUs: 4
+Total Memory: 15.34 GiB
+Name: dad66ef64043
+{% endhighlight %}
+
+<p>Pour arrêter et supprimer rapidement l'ensemble des conteneurs, vous pouvez utiliser
+la commande suivante :</p>
+
+{% highlight bash %}
+$ docker rm -fv $(docker ps -q)
+{% endhighlight %}
+
+<p>Lorsque l'on utilise la stratégie Binpack, Swarm va tenter de lancer un maximum de
+conteneurs au sein d'un même noeud avant d'en utiliser un autre. Pour cela il va
+s'appuyer sur les resources CPU et mémoire de chaque noeud. Il est donc nécessaire
+de spécifier les besoins en terme de CPU et de mémoire lorsque l'on exécute un conteneur
+au sein d'un cluster utilisant la stratégie Binpack. Si aucune restriction n'est précisé
+au lancement d'un conteneur, celui-ci sera systématiquement lancé sur le premier noeud
+du cluster.</p>
+
+<p>Configurez votre cluster Swarm pour utiliser la stratégie Binpack en commencant
+par récupérer l'identifiant de votre Swarm Manager sur la machine Master.</p>
+
+{% highlight bash %}
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                                                            NAMES
+dad66ef64043        swarm               "/swarm manage -H :40"   2 hours ago         Up 2 hours          2375/tcp, 0.0.0.0:4000->4000/tcp                                                 mad_turing
+{% endhighlight %}
+
+<p>Arrêtez le Swarm Manager.</p>
+
+{% highlight bash %}
+$ docker rm -fv dad66ef64043 
+{% endhighlight %}
+
+<p>Relancer une nouvelle instance de Swarm Manager en indiquant la stratégie Binpack.</p>
+
+{% highlight bash %}
+$ docker run -d -p 4000:4000 swarm manage --strategy binpack -H :4000 --advertise <master_ip>:4000 consul://<consul_ip>:8500
+{% endhighlight %}
+
+<p>Vérifiez que la nouvelle stratégie a bien été configuré en lançant la commande
+docker info sur un des noeud du cluster.</p>
+
+{% highlight bash %}
+$ docker info
+Containers: 8
+ Running: 8
+ Paused: 0
+ Stopped: 0
+Images: 14
+Server Version: swarm/1.1.3
+Role: primary
+Strategy: binpack
+Filters: health, port, dependency, affinity, constraint
+Nodes: 2
+ 52.28.227.0: 52.28.227.0:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: disk=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T17:01:50Z
+ 52.29.87.59: 52.29.87.59:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 0 B / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T17:01:50Z
+Plugins: 
+ Volume: 
+ Network: 
+Kernel Version: 4.2.0-19-generic
+Operating System: linux
+Architecture: amd64
+CPUs: 4
+Total Memory: 15.34 GiB
+Name: 7563fa19c208
+{% endhighlight %}
+
+<p>Lancez plusieurs instances de Nginx en réservant 200 mb de mémoire pour chaque instance, 
+en utilisant l'option -m.</p>
+
+{% highlight bash %}
+$ docker run -d -m 2000MB nginx
+{% endhighlight %}
+
+<p>Vérifiez que les premières instances de Nginx sont bien lancées sur la premier noeud du cluster,
+puis une fois qu'il n'y a plus suffisament de resource disponible, les instances suivantes sont
+lancés sur le second noeud.</p>
+
+{% highlight bash %}
+$ docker info
+Containers: 6
+ Running: 6
+ Paused: 0
+ Stopped: 0
+Images: 14
+Server Version: swarm/1.1.3
+Role: primary
+Strategy: binpack
+Filters: health, port, dependency, affinity, constraint
+Nodes: 2
+ 52.28.227.0: 52.28.227.0:2375
+  └ Status: Healthy
+  └ Containers: 2
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 1.953 GiB / 7.669 GiB
+  └ Labels: disk=ssd, executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T17:08:52Z
+ 52.29.87.59: 52.29.87.59:2375
+  └ Status: Healthy
+  └ Containers: 4
+  └ Reserved CPUs: 0 / 2
+  └ Reserved Memory: 5.859 GiB / 7.669 GiB
+  └ Labels: executiondriver=native-0.2, kernelversion=4.2.0-19-generic, operatingsystem=Ubuntu 15.10, storagedriver=aufs
+  └ Error: (none)
+  └ UpdatedAt: 2016-03-06T17:08:47Z
+Plugins: 
+ Volume: 
+ Network: 
+Kernel Version: 4.2.0-19-generic
+Operating System: linux
+Architecture: amd64
+CPUs: 4
+Total Memory: 15.34 GiB
+Name: 7563fa19c208
+{% endhighlight %}
+
+<p>N'oubliez pas de nettoyer votre environnement en utilisant la commande suivante :</p>
+
+{% highlight bash %}
+$ docker rm -fv $(docker ps -q)
+{% endhighlight %}
+
+<p>La stratégie Random n'utilise aucun algorithme de classement et exécute simplement
+chaque conteneur sur un noeud du cluster choisi aléatoirement. Cette stratégie n'a
+d'intérêt que pour des tests ou du debug.</p>
+
 <h3>Gestion des resources</h3>
 
-<p>Lancer plusieurs instances de Redis en réservant 2 CPU pour chaque instance, 
+<p>Lancez plusieurs instances de Redis en réservant 2 CPU pour chaque instance, 
 en utilisant l'option --cpu-shares.</p>
 
 {% highlight bash %}
